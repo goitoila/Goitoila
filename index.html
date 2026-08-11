@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-  <title>NGỤC - 5 MAPS TV</title>
+  <title>NGỤC - 5 MAPS TV (FLASHLIGHT & ADVANCED AI)</title>
   <style>
     * {
       margin: 0;
@@ -196,11 +196,12 @@
         📺 <b>Điều khiển TV / Remote / Bàn Phím:</b><br>
         - Phím <b>[2]</b>: Vào chơi / Chơi lại<br>
         - Phím <b>[3]</b>: Đóng / Mở Hướng dẫn<br>
-        - Phím <b>[▲ ▼ ◄ ►] / WASD</b>: Di chuyển<br><br>
-        🗺️ <b>Nhiệm vụ 5 Map:</b><br>
-        - Đi tìm <b>4 MẢNH CHÌA KHÓA</b> ở Map 2, Map 3, Map 4, Map 5.<br>
-        - Mỗi Map có cấu trúc phòng thông nhau & 1 loài Quái vật nguy hiểm (Map càng cao quái chạy càng nhanh!).<br>
-        ☠️ <b>CẢNH BÁO:</b> Thu thập đủ 4 mảnh, nhạc đếm ngược nổi lên, Sương Mù Đỏ bao phủ & Tất cả Quái Vật sẽ săn tìm bạn! Chạy khẩn cấp về <b>Map 1</b> để mở EXIT!
+        - Phím <b>[▲ ▼ ◄ ►] / WASD</b>: Di chuyển Đèn pin<br><br>
+        🔦 <b>Cơ chế Đèn Pin & Quái vật AI:</b><br>
+        - Bạn có ĐÈN PIN rọi đường. Các quái vật sẽ <b>ĐI TUẦN TRA</b> ở Map của chúng.<br>
+        - Nếu bạn bị quái nhìn thấy (không bị tường che), nó sẽ đuổi theo! Hãy chạy khuất tầm nhìn để cắt đuôi.<br>
+        - Tìm <b>4 mảnh chìa khóa</b> ở Map 2, 3, 4, 5. Các cổng sang Map ở Map 1 nhấp nháy ĐỎ trong bóng tối.<br>
+        ☠️ <b>ĐẶC BIỆT:</b> Nhặt đủ 4 mảnh chìa, <b>TẤT CẢ 4 QUÁI VẬT SẼ TRÀN VỀ MAP 1</b>. Chạy ngay tới CỬA EXIT ở góc cuối Map 1!
       </div>
       <button id="closeGuideBtn" class="btn">ĐÓNG</button>
     </div>
@@ -215,7 +216,7 @@
     <!-- Win Screen -->
     <div id="winScreen" class="overlay hidden">
       <h1 class="title" style="color: #00ffcc; font-size: 32px;">THOÁT NẠN THÀNH CÔNG!</h1>
-      <p style="color: #ddd; margin-bottom: 20px;">Bạn đã thu thập đủ 4 mảnh chìa khóa và trốn thoát!</p>
+      <p style="color: #ddd; margin-bottom: 20px;">Bạn đã thu thập đủ 4 mảnh chìa khóa và mở cửa trốn thoát thành công!</p>
       <button id="backToMenuBtn" class="btn">VỀ MENU</button>
     </div>
   </div>
@@ -246,37 +247,45 @@
     const joystickKnob = document.getElementById('joystick-knob');
     const gameInfo = document.getElementById('game-info');
 
-    // MÃ NGUỒN TƯỜNG CHO 5 MAP KHÁC NHAU ĐA DẠNG
+    // MÃ NGUỒN TƯỜNG CHO 5 MAP KHÁC NHAU
     const mapWalls = {
-      1: [ // Map 1: Sảnh chính
-        { x: 300, y: 150, w: 200, h: 30 },
-        { x: 200, y: 350, w: 400, h: 30 }
+      1: [
+        { x: 250, y: 180, w: 300, h: 30 },
+        { x: 250, y: 380, w: 300, h: 30 }
       ],
-      2: [ // Map 2: Mê cung hẹp
+      2: [
         { x: 50,  y: 80,  w: 220, h: 30 }, { x: 100, y: 160, w: 180, h: 30 },
         { x: 250, y: 160, w: 30,  h: 180 }, { x: 80,  y: 330, w: 200, h: 30 },
         { x: 360, y: 80,  w: 30,  h: 270 }, { x: 450, y: 80,  w: 30,  h: 170 },
         { x: 450, y: 220, w: 250, h: 30 }, { x: 600, y: 20,  w: 30,  h: 230 },
-        { x: 100, y: 410, w: 40,  h: 180 }, { x: 240, y: 450, w: 260, h: 30 },
-        { x: 520, y: 350, w: 280, h: 30 }
+        { x: 100, y: 410, w: 40,  h: 180 }, { x: 240, y: 450, w: 260, h: 30 }
       ],
-      3: [ // Map 3: 6 Căn phòng nối liền thông nhau
+      3: [
         { x: 0,   y: 280, w: 320, h: 30 }, { x: 480, y: 280, w: 320, h: 30 },
         { x: 260, y: 0,   w: 30,  h: 200 }, { x: 260, y: 380, w: 30,  h: 220 },
         { x: 530, y: 0,   w: 30,  h: 200 }, { x: 530, y: 380, w: 30,  h: 220 }
       ],
-      4: [ // Map 4: Hành lang Ziczac song song
-        { x: 100, y: 100, w: 700, h: 30 },
-        { x: 0,   y: 220, w: 700, h: 30 },
-        { x: 100, y: 340, w: 700, h: 30 },
-        { x: 0,   y: 460, w: 700, h: 30 }
+      4: [
+        { x: 100, y: 100, w: 700, h: 30 }, { x: 0,   y: 220, w: 700, h: 30 },
+        { x: 100, y: 340, w: 700, h: 30 }, { x: 0,   y: 460, w: 700, h: 30 }
       ],
-      5: [ // Map 5: Căn phòng ma quái lớn & chướng ngại phức tạp
+      5: [
         { x: 150, y: 80,  w: 500, h: 30 }, { x: 150, y: 80,  w: 30,  h: 440 },
         { x: 620, y: 80,  w: 30,  h: 440 }, { x: 150, y: 490, w: 500, h: 30 },
         { x: 300, y: 200, w: 200, h: 200 }
       ]
     };
+
+    // VỊ TRÍ CÁC CỔNG THÔNG SANG MAP KHÁC Ở MAP 1
+    const map1Doors = {
+      2: { x: 750, y: 80,  w: 50, h: 80, label: 'MAP 2' },
+      3: { x: 750, y: 440, w: 50, h: 80, label: 'MAP 3' },
+      4: { x: 0,   y: 440, w: 50, h: 80, label: 'MAP 4' },
+      5: { x: 360, y: 550, w: 80, h: 50, label: 'MAP 5' }
+    };
+
+    // VỊ TRÍ CỬA EXIT Ở CUỐI MAP 1 (Góc trên bên trái)
+    const exitDoor = { x: 20, y: 20, width: 80, height: 100 };
 
     // MẮT TRANG TRÍ MENU
     const menuEyes = [];
@@ -293,7 +302,7 @@
     const keys = {};
     let joystickVector = { x: 0, y: 0 };
 
-    // LẮP BỘ BẮT PHÍM ĐIỀU KHIỂN REMOTE TV & BÀN PHÍM
+    // LẮP BỘ BẮT PHÍM REMOTE TV & BÀN PHÍM
     window.addEventListener('keydown', e => {
       const key = e.key.toLowerCase();
       const code = e.keyCode;
@@ -305,20 +314,14 @@
       if (code === 37 || key === 'arrowleft') keys['arrowleft'] = true;
       if (code === 39 || key === 'arrowright') keys['arrowright'] = true;
 
-      // Phím 2: CHƠI / CHƠI LẠI
       if (key === '2' || key === 'digit2' || code === 50) {
-        if (gameState === 'MENU') {
-          initGame();
-        } else if (gameState === 'ENDED') {
-          if (!gameOverScreen.classList.contains('hidden')) {
-            initGame();
-          } else if (!winScreen.classList.contains('hidden')) {
-            showMenu();
-          }
+        if (gameState === 'MENU') initGame();
+        else if (gameState === 'ENDED') {
+          if (!gameOverScreen.classList.contains('hidden')) initGame();
+          else if (!winScreen.classList.contains('hidden')) showMenu();
         }
       }
 
-      // Phím 3: HƯỚNG DẪN
       if (key === '3' || key === 'digit3' || code === 51) {
         if (gameState === 'MENU') {
           if (guideScreen.classList.contains('hidden')) showGuide();
@@ -357,7 +360,7 @@
 
     chaseMusic.onended = function() {
       if (gameState === 'PLAYING' && allKeysCollected()) {
-        gameOverText.innerText = "HẾT THỜI GIAN! Bản nhạc kết thúc và quái vật đã xé xác bạn...";
+        gameOverText.innerText = "HẾT THỜI GIAN! Bóng tối & Quái vật đã nuốt chửng bạn...";
         endGame(gameOverScreen, gameOverBgImg);
       }
     };
@@ -391,9 +394,10 @@
       joystickVector = { x: dx / maxRadius, y: dy / maxRadius };
     }
 
-    let player, exitDoor, gameState, currentMap;
-    let keyFragments = {}; // Lưu mảnh chìa khóa cho Map 2, 3, 4, 5
-    let monsters = {};     // Quái vật riêng cho từng Map (Map 2->5)
+    let player, gameState, currentMap;
+    let keyFragments = {};
+    let monsters = {};
+    let lightBlinkTimer = 0;
 
     function allKeysCollected() {
       return keyFragments[2].collected && keyFragments[3].collected && 
@@ -431,10 +435,10 @@
       stopAllMusic();
       currentMap = 1;
 
-      player = { x: 400, y: 300, radius: 12, speed: 2.8 };
-      exitDoor = { x: 50, y: 50, width: 80, height: 100 };
+      // Player có góc quay Đèn pin (angle)
+      player = { x: 400, y: 300, radius: 12, speed: 2.7, angle: 0 };
 
-      // Khởi tạo mảnh chìa khóa trên 4 map
+      // Khởi tạo mảnh chìa khóa trên các Map
       keyFragments = {
         2: { x: 150, y: 120, radius: 10, collected: false },
         3: { x: 680, y: 120, radius: 10, collected: false },
@@ -442,12 +446,24 @@
         5: { x: 400, y: 300, radius: 10, collected: false }
       };
 
-      // Cấu hình Quái vật riêng cho từng Map (Tốc độ tăng dần theo Map)
+      // Cấu hình AI Quái vật (Tốc độ vừa phải: 1.5 ~ 2.2, có Chế độ Patrol & Chase)
       monsters = {
-        2: { x: 500, y: 200, radius: 14, speed: 2.1, color: '#ff0000', name: 'Bóng Ma Đỏ' },
-        3: { x: 400, y: 100, radius: 15, speed: 2.4, color: '#00e5ff', name: 'Mắt Xanh Xám' },
-        4: { x: 650, y: 280, radius: 13, speed: 2.7, color: '#bd00ff', name: 'Bóng Đêm Tím' },
-        5: { x: 200, y: 150, radius: 16, speed: 3.1, color: '#ff7700', name: 'Huyết Quỷ Cam' }
+        2: {
+          x: 500, y: 200, radius: 14, speed: 1.8, color: '#ff0000', name: 'Bóng Ma Đỏ',
+          state: 'PATROL', targetX: 500, targetY: 200, patrolTimer: 0, mapId: 2
+        },
+        3: {
+          x: 400, y: 100, radius: 15, speed: 1.9, color: '#00e5ff', name: 'Mắt Xanh Xám',
+          state: 'PATROL', targetX: 400, targetY: 100, patrolTimer: 0, mapId: 3
+        },
+        4: {
+          x: 650, y: 280, radius: 13, speed: 2.0, color: '#bd00ff', name: 'Bóng Đêm Tím',
+          state: 'PATROL', targetX: 650, targetY: 280, patrolTimer: 0, mapId: 4
+        },
+        5: {
+          x: 200, y: 150, radius: 16, speed: 2.2, color: '#ff7700', name: 'Huyết Quỷ Cam',
+          state: 'PATROL', targetX: 200, targetY: 150, patrolTimer: 0, mapId: 5
+        }
       };
 
       gameOverBgImg.classList.add('hidden'); winBgImg.classList.add('hidden');
@@ -469,27 +485,87 @@
       return false;
     }
 
-    // CHUYỂN CỔNG GIỮA CÁC MAP
-    function checkMapTransitions() {
-      // Ở viền màn hình sẽ có các cổng thông qua map mới
+    // KIỂM TRA TẦM NHÌN CỦA QUÁI VẬT CÓ BỊ TƯỜNG CHE KHÔNG
+    function hasLineOfSight(x1, y1, x2, y2, mapId) {
+      const steps = 15;
+      for (let i = 0; i <= steps; i++) {
+        let px = x1 + (x2 - x1) * (i / steps);
+        let py = y1 + (y2 - y1) * (i / steps);
+        if (checkWallCollision(px, py, 3, mapId)) return false;
+      }
+      return true;
+    }
+
+    // CHUYỂN CỔNG TẠI MAP 1 SANG CÁC MAP KHÁC
+    function checkMap1Transitions() {
       if (currentMap === 1) {
-        if (player.x > 770) { currentMap = 2; player.x = 40; } // Qua phải -> Map 2
-        else if (player.y > 570) { currentMap = 3; player.y = 40; } // Xuống dưới -> Map 3
+        // Cửa sang Map 2
+        let d2 = map1Doors[2];
+        if (player.x > d2.x && player.y > d2.y && player.y < d2.y + d2.h) {
+          currentMap = 2; player.x = 50; player.y = 300;
+        }
+        // Cửa sang Map 3
+        let d3 = map1Doors[3];
+        if (player.x > d3.x && player.y > d3.y && player.y < d3.y + d3.h) {
+          currentMap = 3; player.x = 50; player.y = 300;
+        }
+        // Cửa sang Map 4
+        let d4 = map1Doors[4];
+        if (player.x < d4.x + d4.w && player.y > d4.y && player.y < d4.y + d4.h) {
+          currentMap = 4; player.x = 750; player.y = 300;
+        }
+        // Cửa sang Map 5
+        let d5 = map1Doors[5];
+        if (player.y > d5.y && player.x > d5.x && player.x < d5.x + d5.w) {
+          currentMap = 5; player.x = 400; player.y = 50;
+        }
+      } else {
+        // Nếu ở viền của các Map 2,3,4,5 -> Quay trở lại Map 1
+        if (currentMap === 2 && player.x < 30) { currentMap = 1; player.x = 720; player.y = 120; }
+        if (currentMap === 3 && player.x < 30) { currentMap = 1; player.x = 720; player.y = 480; }
+        if (currentMap === 4 && player.x > 770) { currentMap = 1; player.x = 80;  player.y = 480; }
+        if (currentMap === 5 && player.y < 30) { currentMap = 1; player.x = 400; player.y = 500; }
       }
-      else if (currentMap === 2) {
-        if (player.x < 30) { currentMap = 1; player.x = 760; } // Trở lại Map 1
-        else if (player.y > 570) { currentMap = 4; player.y = 40; } // Xuống dưới -> Map 4
+    }
+
+    function updateAI(mob, targetMapId) {
+      let distToPlayer = Math.hypot(player.x - mob.x, player.y - mob.y);
+      let isSameMap = (currentMap === targetMapId);
+
+      // Nếu cùng map & không bị tường che trong bán kính 220px -> Nhìn thấy & Đuổi theo
+      if (isSameMap && distToPlayer < 220 && hasLineOfSight(mob.x, mob.y, player.x, player.y, targetMapId)) {
+        mob.state = 'CHASE';
+      } else if (mob.state === 'CHASE') {
+        // Khi người chơi khuất khỏi tầm nhìn -> NPC quay lại đi tuần tra!
+        mob.state = 'PATROL';
+        mob.patrolTimer = 0;
       }
-      else if (currentMap === 3) {
-        if (player.y < 30) { currentMap = 1; player.y = 560; } // Lên trên -> Map 1
-        else if (player.x > 770) { currentMap = 5; player.x = 40; } // Qua phải -> Map 5
+
+      if (mob.state === 'CHASE' && isSameMap) {
+        let angle = Math.atan2(player.y - mob.y, player.x - mob.x);
+        let nX = mob.x + Math.cos(angle) * mob.speed;
+        let nY = mob.y + Math.sin(angle) * mob.speed;
+        if (!checkWallCollision(nX, mob.y, mob.radius, targetMapId)) mob.x = nX;
+        if (!checkWallCollision(mob.x, nY, mob.radius, targetMapId)) mob.y = nY;
+      } else {
+        // Đi tuần tra ngẫu nhiên
+        mob.patrolTimer--;
+        if (mob.patrolTimer <= 0) {
+          mob.targetX = 80 + Math.random() * 640;
+          mob.targetY = 80 + Math.random() * 440;
+          mob.patrolTimer = 120 + Math.random() * 100;
+        }
+        let angle = Math.atan2(mob.targetY - mob.y, mob.targetX - mob.x);
+        let nX = mob.x + Math.cos(angle) * (mob.speed * 0.55);
+        let nY = mob.y + Math.sin(angle) * (mob.speed * 0.55);
+        if (!checkWallCollision(nX, mob.y, mob.radius, targetMapId)) mob.x = nX;
+        if (!checkWallCollision(mob.x, nY, mob.radius, targetMapId)) mob.y = nY;
       }
-      else if (currentMap === 4) {
-        if (player.y < 30) { currentMap = 2; player.y = 560; } // Lên trên -> Map 2
-        else if (player.x > 770) { currentMap = 5; player.x = 40; } // Qua phải -> Map 5
-      }
-      else if (currentMap === 5) {
-        if (player.x < 30) { currentMap = 3; player.x = 760; } // Trở lại Map 3
+
+      // Va chạm người chơi -> Chết
+      if (isSameMap && distToPlayer < player.radius + mob.radius) {
+        gameOverText.innerText = `Bạn đã bị [${mob.name}] tiêu diệt trong bóng tối!`;
+        endGame(gameOverScreen, gameOverBgImg);
       }
     }
 
@@ -516,6 +592,8 @@
 
       if (gameState !== 'PLAYING') return;
 
+      lightBlinkTimer += 0.05; // Timer cho ánh sáng nhấp nháy cửa
+
       let moveX = joystickVector.x, moveY = joystickVector.y;
       if (keys['w'] || keys['arrowup']) moveY = -1;
       if (keys['s'] || keys['arrowdown']) moveY = 1;
@@ -523,6 +601,11 @@
       if (keys['d'] || keys['arrowright']) moveX = 1;
 
       if (moveX !== 0 && moveY !== 0 && !joystickActive) { moveX *= 0.7071; moveY *= 0.7071; }
+
+      // Cập nhật góc quay Đèn pin theo hướng di chuyển
+      if (moveX !== 0 || moveY !== 0) {
+        player.angle = Math.atan2(moveY, moveX);
+      }
 
       let nextX = player.x + moveX * player.speed;
       let nextY = player.y + moveY * player.speed;
@@ -534,54 +617,52 @@
         player.y = Math.max(player.radius, Math.min(canvas.height - player.radius, nextY));
       }
 
-      checkMapTransitions();
+      checkMap1Transitions();
 
-      // CẬP NHẬT THÔNG TIN VÀ KIỂM TRA MẢNH CHÌA KHÓA
+      // CẬP NHẬT THÔNG TIN UI
       let collectedCount = countCollectedKeys();
       if (allKeysCollected()) {
-        gameInfo.innerText = `🚨 ĐÃ ĐỦ 4 MẢNH CHÌA KHÓA! CHẠY KHẨN CẤP VỀ MAP 1 MỞ CỬA EXIT!`;
+        gameInfo.innerText = `🚨 4 QUÁI VẬT ĐÃ TRÀN VÀO MAP 1! CHẠY KHẨN CẤP ĐẾN CỬA EXIT!`;
       } else {
         gameInfo.innerText = `📍 MAP ${currentMap} | 🗝️ Mảnh chìa khóa: [${collectedCount}/4]`;
       }
 
-      // Nhặt mảnh chìa khóa nếu đang ở Map có chìa
+      // NHẶT MẢNH CHÌA KHÓA
       if (keyFragments[currentMap] && !keyFragments[currentMap].collected) {
         let key = keyFragments[currentMap];
         let dist = Math.hypot(player.x - key.x, player.y - key.y);
         if (dist < player.radius + key.radius) {
           key.collected = true;
 
-          // Nếu vừa nhặt đủ 4 mảnh chìa -> Bật nhạc Chase
+          // Khi vừa nhặt đủ 4 mảnh chìa -> Phát nhạc & Đưa 4 con NPC về Map 1!
           if (allKeysCollected()) {
             chaseMusic.currentTime = 0;
             chaseMusic.play().catch(e => console.log(e));
+
+            // Đưa 4 NPC tụ họp về Map 1
+            Object.keys(monsters).forEach(mId => {
+              monsters[mId].x = 200 + Math.random() * 400;
+              monsters[mId].y = 150 + Math.random() * 300;
+              monsters[mId].state = 'PATROL';
+            });
           }
         }
       }
 
-      // XỬ LÝ QUÁI VẬT TẠI MAP HIỆN TẠI
-      if (monsters[currentMap]) {
-        let mob = monsters[currentMap];
-        let isAllKeys = allKeysCollected();
-
-        // Nếu đã nhặt đủ 4 mảnh chìa khóa -> Tất cả Quái vật ĐẦU HÀNG ĐỔI THÀNH ĐUỔI THEO BẠN
-        let distPlayer = Math.hypot(player.x - mob.x, player.y - mob.y);
-        if (isAllKeys || distPlayer < 200) {
-          let angle = Math.atan2(player.y - mob.y, player.x - mob.x);
-          let nX = mob.x + Math.cos(angle) * mob.speed;
-          let nY = mob.y + Math.sin(angle) * mob.speed;
-          if (!checkWallCollision(nX, mob.y, mob.radius, currentMap)) mob.x = nX;
-          if (!checkWallCollision(mob.x, nY, mob.radius, currentMap)) mob.y = nY;
-        }
-
-        // Kiểm tra va chạm quái vật -> Chết
-        if (distPlayer < player.radius + mob.radius) {
-          gameOverText.innerText = `Bạn đã bị [${mob.name}] bắt gục tại Map ${currentMap}!`;
-          endGame(gameOverScreen, gameOverBgImg);
+      // CẬP NHẬT AI QUÁI VẬT
+      if (allKeysCollected()) {
+        // Nhặt đủ 4 mảnh: Cả 4 quái vật hoạt động cùng lúc ở Map 1!
+        Object.keys(monsters).forEach(mId => {
+          updateAI(monsters[mId], 1);
+        });
+      } else {
+        // Chưa đủ mảnh: Quái vật ở Map tương ứng của nó
+        if (monsters[currentMap]) {
+          updateAI(monsters[currentMap], currentMap);
         }
       }
 
-      // KIỂM TRA THẮNG GAME TẠI MAP 1
+      // THẮNG GAME TẠI CỬA EXIT MAP 1
       if (currentMap === 1 && allKeysCollected()) {
         if (player.x < exitDoor.x + exitDoor.width && player.y < exitDoor.y + exitDoor.height) {
           endGame(winScreen, winBgImg);
@@ -634,26 +715,43 @@
 
       if (gameState === 'ENDED') return;
 
-      // 1. Vẽ Nền Map
-      ctx.fillStyle = '#111'; ctx.fillRect(0, 0, canvas.width, canvas.height);
+      // 1. NỀN GAME & TƯỜNG
+      ctx.fillStyle = '#0d0d0d'; ctx.fillRect(0, 0, canvas.width, canvas.height);
 
-      // 2. Vẽ Tường của Map
       ctx.fillStyle = '#8b0000';
       if (mapWalls[currentMap]) {
-        mapWalls[currentMap].forEach(w => {
-          ctx.fillRect(w.x, w.y, w.w, w.h);
+        mapWalls[currentMap].forEach(w => ctx.fillRect(w.x, w.y, w.w, w.h));
+      }
+
+      // 2. VẼ CỬA EXIT TẠI MAP 1
+      if (currentMap === 1) {
+        ctx.fillStyle = allKeysCollected() ? '#00ffcc' : '#333';
+        ctx.fillRect(exitDoor.x, exitDoor.y, exitDoor.width, exitDoor.height);
+        ctx.fillStyle = '#fff'; ctx.font = '12px Courier New';
+        ctx.fillText('EXIT', exitDoor.x + 25, exitDoor.y + 55);
+
+        // 3. VẼ CÁC CỔNG VÀ ÁNH SÁNG ĐỎ NHẤP NHÁY SANG CÁC MAP
+        let blinkGlow = (Math.sin(lightBlinkTimer * 3) + 1) * 12 + 5;
+        Object.keys(map1Doors).forEach(mId => {
+          let door = map1Doors[mId];
+          ctx.fillStyle = '#3a0000';
+          ctx.fillRect(door.x, door.y, door.w, door.h);
+
+          // Vùng ánh sáng đỏ nhấp nháy phát ra từ cửa
+          ctx.save();
+          ctx.shadowColor = '#ff0000';
+          ctx.shadowBlur = blinkGlow;
+          ctx.strokeStyle = '#ff0000';
+          ctx.lineWidth = 2;
+          ctx.strokeRect(door.x, door.y, door.w, door.h);
+          ctx.restore();
+
+          ctx.fillStyle = '#ff8888'; ctx.font = '10px Courier New';
+          ctx.fillText(door.label, door.x + 5, door.y + door.h / 2);
         });
       }
 
-      // 3. Nếu là Map 1 -> Vẽ Cửa Exit
-      if (currentMap === 1) {
-        ctx.fillStyle = allKeysCollected() ? '#00ffcc' : '#444';
-        ctx.fillRect(exitDoor.x, exitDoor.y, exitDoor.width, exitDoor.height);
-        ctx.fillStyle = '#fff'; ctx.font = '12px Courier New';
-        ctx.fillText('EXIT', exitDoor.x + 25, exitDoor.y + 50);
-      }
-
-      // 4. Vẽ Mảnh Chìa Khóa (nếu có ở Map này)
+      // 4. VẼ MẢNH CHÌA KHÓA
       if (keyFragments[currentMap] && !keyFragments[currentMap].collected) {
         let key = keyFragments[currentMap];
         ctx.beginPath(); ctx.arc(key.x, key.y, key.radius, 0, Math.PI * 2);
@@ -661,30 +759,68 @@
         ctx.fill(); ctx.shadowBlur = 0;
       }
 
-      // 5. Vẽ Quái vật tại Map này
-      if (monsters[currentMap]) {
+      // 5. VẼ QUÁI VẬT
+      if (allKeysCollected() && currentMap === 1) {
+        // Vẽ 4 quái tụ họp ở Map 1
+        Object.keys(monsters).forEach(mId => {
+          let mob = monsters[mId];
+          ctx.beginPath(); ctx.arc(mob.x, mob.y, mob.radius, 0, Math.PI * 2);
+          ctx.fillStyle = mob.color; ctx.shadowColor = mob.color; ctx.shadowBlur = 15;
+          ctx.fill(); ctx.shadowBlur = 0;
+        });
+      } else if (monsters[currentMap]) {
         let mob = monsters[currentMap];
         ctx.beginPath(); ctx.arc(mob.x, mob.y, mob.radius, 0, Math.PI * 2);
         ctx.fillStyle = mob.color; ctx.shadowColor = mob.color; ctx.shadowBlur = 15;
         ctx.fill(); ctx.shadowBlur = 0;
       }
 
-      // 6. Vẽ Nhân vật
+      // 6. VẼ NHÂN VẬT
       ctx.beginPath(); ctx.arc(player.x, player.y, player.radius, 0, Math.PI * 2);
       ctx.fillStyle = '#00ffcc'; ctx.fill();
 
-      // 7. SƯƠNG MÙ BÓNG TỐI (ĐỎ khi đã thu đủ 4 mảnh)
-      const gradient = ctx.createRadialGradient(player.x, player.y, 30, player.x, player.y, 220);
-      if (allKeysCollected()) {
-        gradient.addColorStop(0, 'rgba(150, 0, 0, 0)');
-        gradient.addColorStop(0.5, 'rgba(180, 0, 0, 0.45)');
-        gradient.addColorStop(1, 'rgba(50, 0, 0, 0.98)');
-      } else {
-        gradient.addColorStop(0, 'rgba(0, 0, 0, 0)');
-        gradient.addColorStop(0.8, 'rgba(0, 0, 0, 0.75)');
-        gradient.addColorStop(1, 'rgba(0, 0, 0, 0.95)');
-      }
-      ctx.fillStyle = gradient; ctx.fillRect(0, 0, canvas.width, canvas.height);
+      // 7. HIỆU ỨNG ÁNH SÁNG ĐÈN PIN (FLASHLIGHT CONE LIGHTING)
+      ctx.save();
+      // Bỏ qua phần ánh sáng để vẽ bóng tối bao phủ
+      let lightCanvas = document.createElement('canvas');
+      lightCanvas.width = canvas.width;
+      lightCanvas.height = canvas.height;
+      let lCtx = lightCanvas.getContext('2d');
+
+      // Phủ toàn bộ bóng tối đen đậm
+      lCtx.fillStyle = 'rgba(3, 3, 5, 0.96)';
+      lCtx.fillRect(0, 0, canvas.width, canvas.height);
+
+      // Đục lỗ ánh sáng Đèn pin hình Nón
+      lCtx.globalCompositeOperation = 'destination-out';
+
+      let flashDist = 240; // Độ xa của đèn pin
+      let flashAngle = Math.PI / 3.5; // Góc rộng nón đèn pin (~50 độ)
+
+      lCtx.beginPath();
+      lCtx.moveTo(player.x, player.y);
+      lCtx.arc(
+        player.x, player.y, flashDist,
+        player.angle - flashAngle / 2,
+        player.angle + flashAngle / 2
+      );
+      lCtx.closePath();
+
+      // Vùng sáng trung tâm đèn pin
+      let coneGrad = lCtx.createRadialGradient(player.x, player.y, 20, player.x, player.y, flashDist);
+      coneGrad.addColorStop(0, 'rgba(0,0,0,1)');
+      coneGrad.addColorStop(0.8, 'rgba(0,0,0,0.8)');
+      coneGrad.addColorStop(1, 'rgba(0,0,0,0)');
+      lCtx.fillStyle = coneGrad;
+      lCtx.fill();
+
+      // Vòng sáng nhỏ bao quanh chân người chơi
+      lCtx.beginPath();
+      lCtx.arc(player.x, player.y, 45, 0, Math.PI * 2);
+      lCtx.fill();
+
+      ctx.drawImage(lightCanvas, 0, 0);
+      ctx.restore();
     }
 
     function gameLoop() {
