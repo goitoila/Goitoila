@@ -195,8 +195,8 @@
       <div class="subtitle">
         🏃 <b>Map 1:</b> Đi tới cầu thang (góc dưới phải) để xuống Map 2.<br><br>
         🗝️ <b>Map 2:</b> Tìm chìa khóa vàng trong mê cung tường đỏ.<br><br>
-        ⏱️ <b>Lưu ý:</b> Nhặt chìa khóa sẽ kích hoạt nhạc đếm ngược. Nếu hết nhạc chưa thoát được ra EXIT, bạn sẽ <b>TỰ ĐỘNG CHẾT</b>!<br><br>
-        🚪 <b>Thoát:</b> Nhặt chìa khóa -> Chạy về Map 1 mở cửa EXIT khẩn cấp!
+        ☠️ <b>CẢNH BÁO:</b> Khi nhặt chìa khóa, sương mù biến thành màu đỏ, quái vật sẽ <b>LUÔN LUÔN NHÌN THẤY BẠN</b> và nhạc đếm ngược sẽ phát lên!<br><br>
+        🚪 <b>Thoát:</b> Chạy khẩn cấp về Map 1 để mở cửa EXIT trước khi hết nhạc!
       </div>
       <button id="closeGuideBtn" class="btn">ĐÓNG</button>
     </div>
@@ -211,7 +211,7 @@
     <!-- Win Screen -->
     <div id="winScreen" class="overlay hidden">
       <h1 class="title" style="color: #00ffcc; font-size: 32px;">THOÁT NẠN THÀNH CÔNG!</h1>
-      <p style="color: #ddd; margin-bottom: 20px;">Bạn đã thoát khỏi ngục tối trước khi thời gian kết thúc!</p>
+      <p style="color: #ddd; margin-bottom: 20px;">Bạn đã trốn thoát thành công khỏi ác quỷ bóng tối!</p>
       <button id="backToMenuBtn" class="btn">VỀ MENU</button>
     </div>
   </div>
@@ -264,8 +264,9 @@
       { x: 520, y: 350, w: 280, h: 30 }
     ];
 
+    // Cấu hình Mắt ở Menu hiệu ứng thoắt ẩn thoắt hiện nhấp nháy đỏ
     const menuEyes = [];
-    for (let i = 0; i < 25; i++) {
+    for (let i = 0; i < 30; i++) {
       menuEyes.push({
         x: Math.random() * 760 + 20,
         y: Math.random() * 560 + 20,
@@ -274,7 +275,11 @@
         blinkDuration: 15 + Math.random() * 20,
         pupilOffsetX: 0,
         pupilOffsetY: 0,
-        lookTimer: Math.random() * 50
+        lookTimer: Math.random() * 50,
+        opacity: Math.random(),
+        fadeSpeed: (Math.random() * 0.03) + 0.01,
+        fadeIn: Math.random() > 0.5,
+        redGlow: Math.random() * 15 + 5
       });
     }
 
@@ -284,7 +289,6 @@
     window.addEventListener('keydown', e => keys[e.key.toLowerCase()] = true);
     window.addEventListener('keyup', e => keys[e.key.toLowerCase()] = false);
 
-    // Phát nhạc menu
     function tryPlayMenuMusic() {
       if (gameState === 'MENU' && menuMusic.paused) {
         menuMusic.play().then(() => {
@@ -299,10 +303,10 @@
     window.addEventListener('touchstart', tryPlayMenuMusic);
     window.addEventListener('keydown', tryPlayMenuMusic);
 
-    // XỬ LÝ KHI HẾT NHẠC RẶỜI/RỢỢT ĐUỔI -> TỰ ĐỘNG CHẾT
+    // Hết nhạc mà chưa tới cửa exit -> Thua
     chaseMusic.onended = function() {
       if (gameState === 'PLAYING' && player.hasKey) {
-        gameOverText.innerText = "THỜI GIAN HẾT! Bản nhạc kết thúc và bạn chưa thể thoát...";
+        gameOverText.innerText = "HẾT THỜI GIAN! Bạn chưa kịp thoát khỏi cánh cửa...";
         endGame(gameOverScreen, gameOverBgImg);
       }
     };
@@ -394,7 +398,7 @@
       keyItem = { x: 150, y: 120, radius: 10, collected: false };
 
       npc = {
-        x: 420, y: 140, radius: 14, speed: 2.0,
+        x: 420, y: 140, radius: 14, speed: 2.1,
         state: 'PATROL',
         targetX: 420, targetY: 140,
         patrolTimer: 0
@@ -464,11 +468,21 @@
             eye.blinkTimer = 0;
           }
           eye.lookTimer++;
-          if (eye.lookTimer > 80) {
+          if (eye.lookTimer > 60) {
             eye.pupilOffsetX = (Math.random() - 0.5) * 8;
             eye.pupilOffsetY = (Math.random() - 0.5) * 4;
             eye.lookTimer = 0;
           }
+
+          // Hiệu ứng Mắt thoắt ẩn thoắt hiện & nhấp nháy
+          if (eye.fadeIn) {
+            eye.opacity += eye.fadeSpeed;
+            if (eye.opacity >= 1) eye.fadeIn = false;
+          } else {
+            eye.opacity -= eye.fadeSpeed;
+            if (eye.opacity <= 0.1) eye.fadeIn = true;
+          }
+          eye.redGlow = 5 + Math.random() * 15;
         });
         return;
       }
@@ -498,7 +512,7 @@
       }
 
       if (currentMap === 1) {
-        gameInfo.innerText = player.hasKey ? "⚠️ CHẠY MAU! Vào cửa EXIT ở góc trái trước khi hết nhạc!" : "📍 MAP 1: Xuống cầu thang góc dưới phải để sang Map 2";
+        gameInfo.innerText = player.hasKey ? "⚠️ SƯƠNG MÙ ĐỎ! CHẠY NHAU VÀO CỬA EXIT GÓC TRÁI!" : "📍 MAP 1: Xuống cầu thang góc dưới phải để sang Map 2";
         
         if (player.x > stairsMap1.x && player.y > stairsMap1.y) {
           currentMap = 2;
@@ -510,7 +524,7 @@
         }
       } 
       else if (currentMap === 2) {
-        gameInfo.innerText = player.hasKey ? "⚠️ ĐÃ CÓ CHÌA KHÓA! Chạy về Map 1 khẩn cấp!" : "📍 MAP 2: Tìm chìa khóa vàng & Tránh xa quái vật!";
+        gameInfo.innerText = player.hasKey ? "☠️ QUÁI VẬT ĐANG NHÌN THẤY BẠN! VỀ MAP 1 MAU!" : "📍 MAP 2: Tìm chìa khóa vàng & Tránh xa quái vật!";
 
         if (player.x > stairsMap2.x && player.y > stairsMap2.y) {
           currentMap = 1;
@@ -518,28 +532,33 @@
           player.y = 300;
         }
 
-        // KIỂM TRA NHẶT CHÌA KHÓA VÀ PHÁT NHẠC ĐẾM NGƯỢC
+        // KHI NHẶT CHÌA KHÓA
         if (!keyItem.collected) {
           let distKey = Math.hypot(player.x - keyItem.x, player.y - keyItem.y);
           if (distKey < player.radius + keyItem.radius) {
             keyItem.collected = true;
             player.hasKey = true;
             
-            // Phát bản nhạc truy đuổi/đếm ngược
+            // Bắt đầu nhạc đếm ngược
             chaseMusic.currentTime = 0;
             chaseMusic.play().catch(e => console.log(e));
           }
         }
 
-        let distToPlayer = Math.hypot(player.x - npc.x, player.y - npc.y);
-        let canSee = distToPlayer < 220 && hasLineOfSight(npc.x, npc.y, player.x, player.y);
-
-        if (canSee) {
+        // LOGIC QUÁI VẬT: Nếu đã nhặt chìa khóa -> Luôn thấy player!
+        if (player.hasKey) {
           npc.state = 'CHASE';
-        } else if (npc.state === 'CHASE') {
-          npc.state = 'PATROL';
+        } else {
+          let distToPlayer = Math.hypot(player.x - npc.x, player.y - npc.y);
+          let canSee = distToPlayer < 220 && hasLineOfSight(npc.x, npc.y, player.x, player.y);
+          if (canSee) {
+            npc.state = 'CHASE';
+          } else if (npc.state === 'CHASE') {
+            npc.state = 'PATROL';
+          }
         }
 
+        // Xử lý di chuyển quái
         if (npc.state === 'CHASE') {
           let angle = Math.atan2(player.y - npc.y, player.x - npc.x);
           let nX = npc.x + Math.cos(angle) * npc.speed;
@@ -560,8 +579,9 @@
           if (!checkWallCollision(npc.x, nY, npc.radius)) npc.y = nY;
         }
 
+        let distToPlayer = Math.hypot(player.x - npc.x, player.y - npc.y);
         if (distToPlayer < player.radius + npc.radius) {
-          gameOverText.innerText = "Bạn đã bị quái vật tóm được trong bóng tối!";
+          gameOverText.innerText = "Bạn đã bị quái vật tóm gục!";
           endGame(gameOverScreen, gameOverBgImg);
         }
       }
@@ -576,8 +596,10 @@
       gameInfo.innerText = '';
     }
 
+    // Vẽ mắt ở màn hình Menu (Chói đỏ, mờ ảo nhấp nháy)
     function drawEye(eye) {
       ctx.save();
+      ctx.globalAlpha = eye.opacity;
       ctx.translate(eye.x, eye.y);
       ctx.scale(eye.scale, eye.scale);
 
@@ -587,7 +609,7 @@
       ctx.strokeStyle = '#ff0000';
       ctx.lineWidth = 3;
       ctx.shadowColor = '#ff0000';
-      ctx.shadowBlur = 10;
+      ctx.shadowBlur = eye.redGlow;
 
       ctx.beginPath();
       ctx.ellipse(0, 0, 25, 12 * lidOpen, 0, 0, Math.PI * 2);
@@ -647,7 +669,7 @@
         ctx.arc(npc.x, npc.y, npc.radius, 0, Math.PI * 2);
         ctx.fillStyle = npc.state === 'CHASE' ? '#ff0000' : '#a00';
         ctx.shadowColor = '#ff0000';
-        ctx.shadowBlur = npc.state === 'CHASE' ? 20 : 5;
+        ctx.shadowBlur = npc.state === 'CHASE' ? 25 : 5;
         ctx.fill();
         ctx.shadowBlur = 0;
 
@@ -658,18 +680,31 @@
         ctx.fill();
       }
 
+      // Vẽ nhân vật
       ctx.beginPath();
       ctx.arc(player.x, player.y, player.radius, 0, Math.PI * 2);
       ctx.fillStyle = '#00ffcc';
       ctx.fill();
 
+      // VẼ HIỆU ỨNG SƯƠNG MÙ BÓNG TỐI (CHUYỂN SANG ĐỎ KHI CÓ CHÌA KHÓA)
       const gradient = ctx.createRadialGradient(
-        player.x, player.y, 40,
-        player.x, player.y, 200
+        player.x, player.y, 30,
+        player.x, player.y, 220
       );
-      gradient.addColorStop(0, 'rgba(0, 0, 0, 0)');
-      gradient.addColorStop(0.8, 'rgba(0, 0, 0, 0.75)');
-      gradient.addColorStop(1, 'rgba(0, 0, 0, 0.95)');
+
+      if (player.hasKey) {
+        // Sương mù màu ĐỎ MÁU khi đã nhặt chìa khóa
+        gradient.addColorStop(0, 'rgba(150, 0, 0, 0)');
+        gradient.addColorStop(0.5, 'rgba(180, 0, 0, 0.45)');
+        gradient.addColorStop(0.85, 'rgba(120, 0, 0, 0.85)');
+        gradient.addColorStop(1, 'rgba(50, 0, 0, 0.98)');
+      } else {
+        // Sương mù ĐEN thông thường khi chưa nhặt chìa khóa
+        gradient.addColorStop(0, 'rgba(0, 0, 0, 0)');
+        gradient.addColorStop(0.8, 'rgba(0, 0, 0, 0.75)');
+        gradient.addColorStop(1, 'rgba(0, 0, 0, 0.95)');
+      }
+
       ctx.fillStyle = gradient;
       ctx.fillRect(0, 0, canvas.width, canvas.height);
     }
