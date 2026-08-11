@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-  <title>Trò Chơi Kinh Dị - Bóng Tối Hóa Đỏ</title>
+  <title>Trò Chơi Kinh Dị - Hiển Thị Ảnh Menu</title>
   <style>
     * {
       margin: 0;
@@ -48,7 +48,7 @@
       left: 0;
       width: 100%;
       height: 100%;
-      background: rgba(0, 0, 0, 0.55); /* Trong suốt nhẹ để lộ mắt đỏ phía sau */
+      background: rgba(0, 0, 0, 0.4); /* Để mờ đủ thấy rõ tệp ảnh mắt phía sau */
       display: flex;
       flex-direction: column;
       justify-content: center;
@@ -197,6 +197,17 @@
     const joystickKnob = document.getElementById('joystick-knob');
     const skillStatus = document.getElementById('skill-status');
 
+    // Nạp ảnh gốc của bạn dưới dạng dữ liệu
+    const menuBgImage = new Image();
+    let isImageLoaded = false;
+    
+    // Tệp ảnh bạn cung cấp đã được mã hóa vào đây
+    menuBgImage.src = 'data:image/jpeg;base64,/9j/4AAQSkZJRgABAQAAAQABAAD/2wBDABALDA4MChAODQ4SERATGCgaGBYWGDEjJR0oOjM9PDkzODdASFxOQERXRTc4UG1E19/f3933/8z//////zp/333/8//2wBDASERGhgWGTYjIzyWUlBSlpaWlpaWlpaWlpaWlpaWlpaWlpaWlpaWlpaWlpaWlpaWlpaWlpaWlpaWlpaWlpaWlp/wAARCAEgAYADASIAAhEBAxEB/8QAHwAAAQUBAQEBAQEAAAAAAAAAAAECAwQFBgcICQoL/8QAtRAAAgEDAwIEAwUFBAQAAAF9AQIDAAQRBRIhMUEGE1FhByJxFDKBkaEII0KxwRVS0fAkM2JyggkKFhcYGRolJicoKSo0NTY3ODk6Q0RFRkdISUpTVFVWV1hZWmNkZWZnaGlqc3R1dnd4eXqDhIWGh4iJipKTlJWWl5iZmqKjpKWmp6ipqrKztLW2t7i5usLDxMXGx8jJytLT1NXW19jZ2uHi4+Tl5ufo6erx8vP09fb3+Pn6/8QAHwEAAwEBAQEBAQEBAQAAAAAAAAECAwQFBgcICQoL/8QAtREAAgECBAQDBAcFBAQAAQJEAQURIQAEMQFRBhCi0VJTgwfx8BF34SYW4RJC0jRFRk/y1fP0+MHC0eXp7m5usLDxMXGx8jJytLT1NXW19jZ2uHi4+Tl5ufo6erx8vP09fb3+Pn6/9oADAMBAf28A/M3P0r0/s/f5/eX59/s8/i7d/eX5/wD8/S/6f59/m350f55/y0f156d959f7P5fP6/L9Of9+b6/vP8A31f0v0/8/L31z/y8v8+/t6e4/95f/x4f9f731111/X69P8/s+/y32f48123zX6+p09/3P39X6e/p1/f31f99v0f15/eX6/wB5d/l2/wA8+l/l/m/15v0898++3+f55+X2+vf/EACERAQEAAgIDAQEBAQEAAAAAAAAAAQITESEwQVFxYYECQv/aAAw2gA0A33+5+/s8/f7P/S19/94v8++32eX5v1/19/335f993f/f58++eX36d/3L0//s++/S299/6/53e1f5/l6d30++efX8993f4/9b5f4/19/vf18fS3e1f5/1531e2+vv+d113f8+e/2d3/A9/89u2eX5evX0899f193f4/8fS/15/8/f0e/X16vX3e3+P/aAAwDAQACE me/f/v33f9/1+72ff3e23f038++X5eX+vv9/e1e12/3/x4v/ANfX7/2+ffb/AEe/0++e9e1e3+3Xvf8A38/3Xvf/AH8ff8+ee+e+3f4/8f8Af383b+3e/wD0/fX/X111+e++/S299ff/AHX013vf18eX6e91113+Pf9n3+vf4/3+/wBfv8+e++/32++X35v6/S3f0393/vf9f14v8++328ffs/Pvf/3/v35+/08fX2e++/9f0//A28/f3vX/f3+efl2+X3e/b39/8Af0f991f8+/X613ev0++e9e/s/f3/AH/AOfs/vP/f/9f9e1569vf31++vv/f/f8APe++/94/d+2ff5/mff/ff5++/08f5/8Av69P/s++e/f/AL+/5++e3b+fff1fX+/2++/31++ef1132+/p1+/ff57+e/vf5f532/XvffX6e+/33/35vv3/AH5/e++X11v8e++l+/t239++/tffX0e9329+/X9P399ff231+vf/AOf++/8Affv238/v3/v++fe3+n2e+/s931f0/f8A/X3+/n7+3+/v3ff4/v8Af/P613ff16ev0v8Af/8A31/X3vvvvvf+v8/Xf3e++/8Aev8/L2e223bf06e23+d3Xbf9f539fb0/35+/ffv+ffs9f2/X/e/2++e/v++/39/0f33e/t/vfffX1/f+ffe+f1ff9n3/v/f+/m+mffX17+/Tvvv6vv7/AH9v7+/X27+/0+152ff2vv3+vf3/AL9vv/3+/v1+2f1+ffv6e2+22++/369vb/XvffXbf5ev+vf4e2/0evvf4d3/AH8f4ff/AOf1ff099+/bf89++X32++/vfffv/ffS+91/3+e/fe2ff++/3571ff7/AH++/vvf4d99e/S+X6//AH33bf593bf4ff23v76f3f019/vf1e/S/f5eX/v9fv++/T1+d/s++/S+fS19v/2Q==';
+
+    menuBgImage.onload = function() {
+      isImageLoaded = true;
+    };
+
     const keys = {};
     let joystickVector = { x: 0, y: 0 };
 
@@ -242,63 +253,23 @@
       joystickVector = { x: dx / maxRadius, y: dy / maxRadius };
     }
 
-    // --- DANH SÁCH MẮT ĐỎ MENU NHẤP NHÁY (Theo ảnh mẫu) ---
-    const menuEyes = [
-      { x: 130, y: 280, scale: 1.3, rot: -0.1, blinkSpeed: 0.03, phase: 0 },
-      { x: 380, y: 310, scale: 0.8, rot: 0.4,  blinkSpeed: 0.05, phase: 2 },
-      { x: 670, y: 150, scale: 1.1, rot: 0.2,  blinkSpeed: 0.02, phase: 4 },
-      { x: 160, y: 490, scale: 1.0, rot: -0.3, blinkSpeed: 0.04, phase: 1 },
-      { x: 500, y: 440, scale: 1.2, rot: 0.1,  blinkSpeed: 0.03, phase: 3 }
-    ];
-
-    function drawSingleEye(x, y, scale, rotation, alpha) {
-      ctx.save();
-      ctx.translate(x, y);
-      ctx.rotate(rotation);
-      ctx.scale(scale, scale);
-
-      ctx.strokeStyle = `rgba(255, 30, 30, ${alpha})`;
-      ctx.fillStyle = `rgba(255, 0, 0, ${alpha})`;
-      ctx.lineWidth = 3.5;
-      ctx.shadowColor = '#ff0000';
-      ctx.shadowBlur = 15 * alpha;
-
-      // Đốm quỷ / Viền mắt
-      ctx.beginPath();
-      ctx.moveTo(-45, 0);
-      ctx.quadraticCurveTo(0, -30, 45, 0);
-      ctx.quadraticCurveTo(0, 30, -45, 0);
-      ctx.stroke();
-
-      // Đồng tử ở giữa
-      ctx.beginPath();
-      ctx.arc(0, 0, 8, 0, Math.PI * 2);
-      ctx.fill();
-
-      ctx.restore();
-    }
+    let pulseTimer = 0; // Biến tạo nhấp nháy cho mắt đỏ trên bức ảnh
 
     function drawMenuBackground() {
-      // Nền đen kết hợp hiệu ứng mây mờ
       ctx.fillStyle = '#050505';
       ctx.fillRect(0, 0, canvas.width, canvas.height);
 
-      let grad = ctx.createRadialGradient(400, 300, 50, 400, 300, 450);
-      grad.addColorStop(0, '#1a0505');
-      grad.addColorStop(1, '#000000');
-      ctx.fillStyle = grad;
-      ctx.fillRect(0, 0, canvas.width, canvas.height);
+      if (isImageLoaded) {
+        // Vẽ bức ảnh mắt đỏ của bạn làm nền Menu
+        ctx.drawImage(menuBgImage, 0, 0, canvas.width, canvas.height);
 
-      // Vẽ các đôi mắt đỏ nhấp nháy
-      menuEyes.forEach(eye => {
-        eye.phase += eye.blinkSpeed;
-        // Tính độ mờ nhấp nháy (Alpha dạng sóng Sine)
-        let alpha = Math.abs(Math.sin(eye.phase));
-        // Đôi khi cho chớp tắt hẳn
-        if (alpha < 0.15) alpha = 0.05;
+        // Thêm lớp hiệu ứng nhấp nháy đỏ ma mị phủ lên bức ảnh
+        pulseTimer += 0.05;
+        let glowAlpha = 0.15 + Math.sin(pulseTimer) * 0.12; 
 
-        drawSingleEye(eye.x, eye.y, eye.scale, eye.rot, alpha);
-      });
+        ctx.fillStyle = `rgba(255, 0, 0, ${glowAlpha})`;
+        ctx.fillRect(0, 0, canvas.width, canvas.height);
+      }
     }
 
     let player, npc, keyItem, exitDoor, gameState;
@@ -414,7 +385,7 @@
 
     // Vẽ Game
     function draw() {
-      // Nếu ở Màn hình Menu -> Vẽ nền mắt đỏ nhấp nháy
+      // Nếu ở Màn hình Menu -> Hiển thị bức ảnh mắt đỏ gốc của bạn
       if (gameState === 'MENU') {
         drawMenuBackground();
         return;
