@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-  <title>Trò Chơi Kinh Dị - Kỹ Năng Ngẫu Nhiên</title>
+  <title>Trò Chơi Kinh Dị - Bóng Tối Hóa Đỏ</title>
   <style>
     * {
       margin: 0;
@@ -129,7 +129,7 @@
       box-shadow: 0 0 10px #ff0000;
     }
 
-    /* Trạng thái Kỹ năng */
+    /* Thông báo Trạng thái Kỹ năng */
     #skill-status {
       position: absolute;
       top: 15px;
@@ -157,14 +157,12 @@
 
     <!-- Menu Screen -->
     <div id="menuScreen" class="overlay">
-      <h1 class="title">BÓNG TỐI ĐÁY SÂU</h1>
+      <h1 class="title">BÓNG TỐI HUYẾT NGỤC</h1>
       <p class="subtitle">
         PC: <b>WASD</b> / <b>Mũi tên</b> | Mobile: <b>Joystick</b><br><br>
-        🎲 <b>KỸ NĂNG QUÁI VẬT BẤT NGỜ:</b><br>
-        Quái vật sẽ dùng <b>Chiêu ngẫu nhiên</b> trong <b>Khoảng thời gian ngẫu nhiên</b>!<br><br>
-        1. <b>Ẩn thân:</b> Tàng hình, chỉ lộ đôi mắt đỏ.<br>
-        2. <b>Huyết ngục:</b> Hóa đỏ toàn bộ bản đồ & dị dạng.<br><br>
-        Nhặt <b>Chìa khóa</b> và chạy tới <b>Cửa thoát</b> để sống sót.
+        🩸 <b>KỸ NĂNG QUÁI VẬT:</b><br>
+        Bóng tối bao quanh sẽ bị nhuộm <b>MÀU ĐỎ RỰC</b> ngẫu nhiên!<br><br>
+        Nhặt <b>Chìa khóa</b> vàng và chạy tới <b>Cửa thoát</b>.
       </p>
       <button id="startBtn" class="btn">BẮT ĐẦU CHƠI</button>
     </div>
@@ -179,7 +177,7 @@
     <!-- Win Screen -->
     <div id="winScreen" class="overlay hidden">
       <h1 class="title" style="color: #00ffcc;">THOÁT NẠN!</h1>
-      <p class="subtitle">Bạn đã sống sót qua cơn ác mộng!</p>
+      <p class="subtitle">Bạn đã sống sót thành công!</p>
       <button id="winRestartBtn" class="btn">CHƠI LẠI</button>
     </div>
   </div>
@@ -204,7 +202,7 @@
     window.addEventListener('keydown', e => keys[e.key.toLowerCase()] = true);
     window.addEventListener('keyup', e => keys[e.key.toLowerCase()] = false);
 
-    // Cảm ứng Joystick
+    // Joystick Cảm ứng
     let joystickActive = false;
     let joystickCenter = { x: 0, y: 0 };
     const maxRadius = 35;
@@ -246,6 +244,7 @@
     let player, npc, keyItem, exitDoor, gameState;
     let cooldownTimer = 0;
     let skillActiveTimer = 0;
+    let isRedSkillActive = false;
 
     function initGame() {
       gameState = 'PLAYING';
@@ -256,16 +255,16 @@
         x: 700,
         y: 500,
         radius: 15,
-        speed: 1.9,
-        skillState: 'NORMAL' // 'NORMAL', 'INVISIBLE', 'RED_MODE'
+        speed: 1.9
       };
 
       keyItem = { x: 700, y: 100, radius: 8, collected: false };
       exitDoor = { x: 50, y: 500, width: 30, height: 50 };
 
-      // Lần đầu vào game: Hồi chiêu ngẫu nhiên từ 2 đến 5 giây
+      // Hồi chiêu ban đầu ngẫu nhiên từ 2 đến 5 giây
       cooldownTimer = Math.floor(120 + Math.random() * 180); 
       skillActiveTimer = 0;
+      isRedSkillActive = false;
 
       menuScreen.classList.add('hidden');
       gameOverScreen.classList.add('hidden');
@@ -306,33 +305,27 @@
         npc.y += (dy / distance) * npc.speed;
       }
 
-      // 3. Logic Kỹ năng NGẪU NHIÊN hoàn toàn
-      if (npc.skillState === 'NORMAL') {
+      // 3. Logic Kỹ năng BÓNG TỐI HÓA ĐỎ Ngẫu Nhiên
+      if (!isRedSkillActive) {
         cooldownTimer--;
         const secondsLeft = Math.ceil(cooldownTimer / 60);
-        skillStatus.innerText = `⏳ Quái vật đang chờ cơ hội (${secondsLeft}s)...`;
+        skillStatus.innerText = `⏳ Đang ẩn náu trong bóng tối (${secondsLeft}s)...`;
 
         if (cooldownTimer <= 0) {
-          // Ngẫu nhiên chọn 1 trong 2 Kỹ năng
-          npc.skillState = Math.random() < 0.5 ? 'INVISIBLE' : 'RED_MODE';
-          
-          // Thời gian TÁC DỤNG NGẪU NHIÊN từ 3 đến 8 giây (180 - 480 frames)
+          // Bật kỹ năng Bóng Tối Hóa Đỏ
+          isRedSkillActive = true;
+          // Thời gian hóa đỏ NGẪU NHIÊN từ 3 đến 8 giây (180 - 480 frames)
           skillActiveTimer = Math.floor(180 + Math.random() * 300); 
         }
       } else {
-        // Đang thi triển Kỹ năng
+        // Đang trong thời gian Bóng Tối Hóa Đỏ
         skillActiveTimer--;
         const activeSecondsLeft = Math.ceil(skillActiveTimer / 60);
-
-        if (npc.skillState === 'INVISIBLE') {
-          skillStatus.innerText = `👁️ QUÁI VẬT ẨN THÂN! (${activeSecondsLeft}s)`;
-        } else if (npc.skillState === 'RED_MODE') {
-          skillStatus.innerText = `🩸 KĨ NĂNG HUYẾT NGỤC! (${activeSecondsLeft}s)`;
-        }
+        skillStatus.innerText = `🩸 KĨ NĂNG: BÓNG TỐI HÓA ĐỎ! (${activeSecondsLeft}s)`;
 
         if (skillActiveTimer <= 0) {
-          // Hết chiêu -> Về bình thường & HỒI CHIÊU NGẪU NHIÊN từ 4 đến 10 giây (240 - 600 frames)
-          npc.skillState = 'NORMAL';
+          // Hết kỹ năng -> Trở lại bóng tối bình thường & HỒI CHIÊU NGẪU NHIÊN từ 4 đến 10 giây
+          isRedSkillActive = false;
           cooldownTimer = Math.floor(240 + Math.random() * 360); 
         }
       }
@@ -366,17 +359,14 @@
 
     // Vẽ Game
     function draw() {
-      if (npc.skillState === 'RED_MODE') {
-        ctx.fillStyle = '#400000'; // Nền đỏ khi bật Huyết ngục
-      } else {
-        ctx.fillStyle = '#111';
-      }
+      // Sàn nhà bên dưới
+      ctx.fillStyle = '#111';
       ctx.fillRect(0, 0, canvas.width, canvas.height);
 
       if (gameState === 'MENU') return;
 
-      // Lưới nền
-      ctx.strokeStyle = npc.skillState === 'RED_MODE' ? '#800000' : '#222';
+      // Đường lưới bản đồ
+      ctx.strokeStyle = '#222';
       ctx.lineWidth = 1;
       for (let x = 0; x < canvas.width; x += 40) {
         ctx.beginPath(); ctx.moveTo(x, 0); ctx.lineTo(x, canvas.height); ctx.stroke();
@@ -406,66 +396,45 @@
       ctx.fillStyle = '#4da6ff';
       ctx.fill();
 
-      // --- VẼ QUÁI VẬT THEO KĨ NĂNG ---
-      if (npc.skillState === 'INVISIBLE') {
-        // KĨ NĂNG 1: Ẩn thân - Chỉ có 2 con mắt đỏ
-        ctx.fillStyle = '#ff0000';
-        ctx.shadowColor = '#ff0000';
-        ctx.shadowBlur = 15;
-        ctx.beginPath();
-        ctx.arc(npc.x - 6, npc.y, 4, 0, Math.PI * 2);
-        ctx.arc(npc.x + 6, npc.y, 4, 0, Math.PI * 2);
-        ctx.fill();
-        ctx.shadowBlur = 0;
-      } 
-      else if (npc.skillState === 'RED_MODE') {
-        // KĨ NĂNG 2: Huyết ngục - Quái vật phình to và có mắt quỷ màu vàng
-        ctx.beginPath();
-        ctx.arc(npc.x, npc.y, npc.radius + 8, 0, Math.PI * 2);
-        ctx.fillStyle = '#8b0000';
-        ctx.shadowColor = '#ff0000';
-        ctx.shadowBlur = 30;
-        ctx.fill();
-        ctx.shadowBlur = 0;
+      // Mắt player
+      ctx.fillStyle = '#fff';
+      ctx.beginPath();
+      ctx.arc(player.x - 3, player.y - 3, 2, 0, Math.PI * 2);
+      ctx.arc(player.x + 3, player.y - 3, 2, 0, Math.PI * 2);
+      ctx.fill();
 
-        ctx.fillStyle = '#ffff00';
-        for (let i = -10; i <= 10; i += 10) {
-          ctx.beginPath();
-          ctx.arc(npc.x + i, npc.y - 4, 3.5, 0, Math.PI * 2);
-          ctx.fill();
-        }
-      } 
-      else {
-        // Bình thường
-        ctx.beginPath();
-        ctx.arc(npc.x, npc.y, npc.radius, 0, Math.PI * 2);
-        ctx.fillStyle = '#cc0000';
-        ctx.shadowColor = '#ff0000';
-        ctx.shadowBlur = 15;
-        ctx.fill();
-        ctx.shadowBlur = 0;
+      // Quái vật
+      ctx.beginPath();
+      ctx.arc(npc.x, npc.y, npc.radius, 0, Math.PI * 2);
+      ctx.fillStyle = '#cc0000';
+      ctx.shadowColor = '#ff0000';
+      ctx.shadowBlur = 15;
+      ctx.fill();
+      ctx.shadowBlur = 0;
 
-        ctx.fillStyle = '#fff';
-        ctx.beginPath();
-        ctx.arc(npc.x - 4, npc.y - 3, 2, 0, Math.PI * 2);
-        ctx.arc(npc.x + 4, npc.y - 3, 2, 0, Math.PI * 2);
-        ctx.fill();
-      }
+      // Mắt quái vật
+      ctx.fillStyle = '#ffff00';
+      ctx.beginPath();
+      ctx.arc(npc.x - 4, npc.y - 3, 2, 0, Math.PI * 2);
+      ctx.arc(npc.x + 4, npc.y - 3, 2, 0, Math.PI * 2);
+      ctx.fill();
 
-      // --- ÁNH SÁNG ĐÈN PIN ---
+      // --- HIỆU ỨNG LỚP BÓNG TỐI / HUYẾT NGỤC ---
       const gradient = ctx.createRadialGradient(
         player.x, player.y, 20,
-        player.x, player.y, 160
+        player.x, player.y, 170
       );
 
-      if (npc.skillState === 'RED_MODE') {
-        gradient.addColorStop(0, 'rgba(255, 0, 0, 0.25)');
-        gradient.addColorStop(0.6, 'rgba(180, 0, 0, 0.85)');
-        gradient.addColorStop(1, 'rgba(80, 0, 0, 0.98)');
+      if (isRedSkillActive) {
+        // KHI BẬT SKILL: Bóng tối chuyển sang MÀU ĐỎ RỰC
+        gradient.addColorStop(0, 'rgba(255, 0, 0, 0)');          // Tâm sáng trong suốt
+        gradient.addColorStop(0.5, 'rgba(180, 0, 0, 0.7)');       // Đỏ vừa
+        gradient.addColorStop(1, 'rgba(100, 0, 0, 0.98)');       // Đỏ đậm phủ kín mép ngoài
       } else {
-        gradient.addColorStop(0, 'rgba(0,0,0,0)');
-        gradient.addColorStop(0.75, 'rgba(0,0,0,0.85)');
-        gradient.addColorStop(1, 'rgba(80, 0, 0, 0.98)');
+        // BÌNH THƯỜNG: Bóng tối MÀU ĐEN kịt
+        gradient.addColorStop(0, 'rgba(0, 0, 0, 0)');            // Tâm sáng trong suốt
+        gradient.addColorStop(0.7, 'rgba(0, 0, 0, 0.85)');      // Đen vừa
+        gradient.addColorStop(1, 'rgba(0, 0, 0, 0.98)');        // Đen kịt mép ngoài
       }
 
       ctx.fillStyle = gradient;
