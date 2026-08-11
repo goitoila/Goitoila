@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-  <title>NGỤC</title>
+  <title>NGỤC - TV Version</title>
   <style>
     * {
       margin: 0;
@@ -111,7 +111,7 @@
       text-transform: uppercase;
       letter-spacing: 2px;
       z-index: 20;
-      min-width: 200px;
+      min-width: 260px;
     }
 
     .btn:hover, .btn:active {
@@ -184,35 +184,38 @@
     <div id="menuScreen" class="overlay">
       <h1 class="title">NGỤC</h1>
       <div class="btn-group">
-        <button id="startBtn" class="btn">BẮT ĐẦU CHƠI</button>
-        <button id="guideBtn" class="btn">HƯỚNG DẪN</button>
+        <button id="startBtn" class="btn">BẮT ĐẦU CHƠI (ẤN PHÍM 2)</button>
+        <button id="guideBtn" class="btn">HƯỚNG DẪN (ẤN PHÍM 3)</button>
       </div>
     </div>
 
-    <!-- Màn hình Hướng Dẫn -->
+    <!-- Màn hình HƯỚNG DẪN -->
     <div id="guideScreen" class="overlay hidden">
       <h1 class="title" style="font-size: 32px; margin-bottom: 15px;">HƯỚNG DẪN CHƠI</h1>
       <div class="subtitle">
-        🏃 <b>Map 1:</b> Đi tới cầu thang (góc dưới phải) để xuống Map 2.<br><br>
-        🗝️ <b>Map 2:</b> Tìm chìa khóa vàng trong mê cung tường đỏ.<br><br>
-        ☠️ <b>CẢNH BÁO:</b> Khi nhặt chìa khóa, sương mù biến thành màu đỏ, quái vật sẽ <b>LUÔN LUÔN NHÌN THẤY BẠN</b> và nhạc đếm ngược sẽ phát lên!<br><br>
-        🚪 <b>Thoát:</b> Chạy khẩn cấp về Map 1 để mở cửa EXIT trước khi hết nhạc!
+        📺 <b>Điều khiển TV / Remote:</b><br>
+        - Phím <b>[2]</b>: Vào chơi / Chơi lại<br>
+        - Phím <b>[3]</b>: Đóng / Mở Hướng dẫn<br>
+        - Phím <b>[▲ ▼ ◄ ►]</b>: Di chuyển nhân vật<br><br>
+        🏃 <b>Map 1:</b> Chạy xuống cầu thang (góc dưới phải) để sang Map 2.<br>
+        🗝️ <b>Map 2:</b> Tìm chìa khóa vàng trong mê cung tường đỏ.<br>
+        ☠️ <b>CẢNH BÁO:</b> Lấy chìa khóa xong sương mù hóa đỏ, quái vật sẽ <b>LUÔN LUÔN ĐUỔI THEO BẠN</b>. Chạy ngay về Map 1 tới cửa EXIT trước khi nhạc kết thúc!
       </div>
-      <button id="closeGuideBtn" class="btn">ĐÓNG</button>
+      <button id="closeGuideBtn" class="btn">ĐÓNG (ẤN PHÍM 3)</button>
     </div>
 
     <!-- Game Over Screen -->
     <div id="gameOverScreen" class="overlay hidden">
       <h1 class="title" style="font-size: 36px;">BẠN ĐÃ CHẾT!</h1>
-      <p id="gameOverText" style="color: #ddd; margin-bottom: 20px;">Thời gian đã hết! Ác quỷ đã nuốt chửng bạn...</p>
-      <button id="restartBtn" class="btn">CHƠI LẠI</button>
+      <p id="gameOverText" style="color: #ddd; margin-bottom: 20px;">Ác quỷ đã nuốt chửng bạn...</p>
+      <button id="restartBtn" class="btn">CHƠI LẠI (ẤN PHÍM 2)</button>
     </div>
 
     <!-- Win Screen -->
     <div id="winScreen" class="overlay hidden">
       <h1 class="title" style="color: #00ffcc; font-size: 32px;">THOÁT NẠN THÀNH CÔNG!</h1>
       <p style="color: #ddd; margin-bottom: 20px;">Bạn đã trốn thoát thành công khỏi ác quỷ bóng tối!</p>
-      <button id="backToMenuBtn" class="btn">VỀ MENU</button>
+      <button id="backToMenuBtn" class="btn">VỀ MENU (ẤN PHÍM 2)</button>
     </div>
   </div>
 
@@ -264,7 +267,6 @@
       { x: 520, y: 350, w: 280, h: 30 }
     ];
 
-    // Cấu hình Mắt ở Menu hiệu ứng thoắt ẩn thoắt hiện nhấp nháy đỏ
     const menuEyes = [];
     for (let i = 0; i < 30; i++) {
       menuEyes.push({
@@ -286,8 +288,62 @@
     const keys = {};
     let joystickVector = { x: 0, y: 0 };
 
-    window.addEventListener('keydown', e => keys[e.key.toLowerCase()] = true);
-    window.addEventListener('keyup', e => keys[e.key.toLowerCase()] = false);
+    // --- LẮP BỘ BẮT PHÍM ĐIỀU KHIỂN TV & BÀN PHÍM ---
+    window.addEventListener('keydown', e => {
+      const key = e.key.toLowerCase();
+      const code = e.keyCode;
+
+      keys[key] = true;
+
+      // Xử lý nút LÊN/XUỐNG/TRÁI/PHẢI chuẩn TV D-Pad (KeyCodes: 37, 38, 39, 40)
+      if (code === 38 || key === 'arrowup') keys['arrowup'] = true;
+      if (code === 40 || key === 'arrowdown') keys['arrowdown'] = true;
+      if (code === 37 || key === 'arrowleft') keys['arrowleft'] = true;
+      if (code === 39 || key === 'arrowright') keys['arrowright'] = true;
+
+      // NÚT PHÍM 2 (HOẶC NÚT ĐỎ REMOTE): BẮT ĐẦU CHƠI / CHƠI LẠI
+      if (key === '2' || key === 'digit2' || code === 50) {
+        if (gameState === 'MENU') {
+          initGame();
+        } else if (gameState === 'ENDED') {
+          if (!gameOverScreen.classList.contains('hidden')) {
+            initGame();
+          } else if (!winScreen.classList.contains('hidden')) {
+            showMenu();
+          }
+        }
+      }
+
+      // NÚT PHÍM 3 (HOẶC NÚT XANH LÁ REMOTE): MỞ/ĐÓNG HƯỚNG DẪN
+      if (key === '3' || key === 'digit3' || code === 51) {
+        if (gameState === 'MENU') {
+          if (guideScreen.classList.contains('hidden')) {
+            showGuide();
+          } else {
+            hideGuide();
+          }
+        }
+      }
+
+      // Nút Backspace hoặc Escape để quay lại Menu khi Thắng/Thua
+      if (code === 27 || code === 8 || key === 'backspace' || key === 'escape') {
+        if (gameState === 'ENDED' || !guideScreen.classList.contains('hidden')) {
+          showMenu();
+        }
+      }
+    });
+
+    window.addEventListener('keyup', e => {
+      const key = e.key.toLowerCase();
+      const code = e.keyCode;
+
+      keys[key] = false;
+
+      if (code === 38 || key === 'arrowup') keys['arrowup'] = false;
+      if (code === 40 || key === 'arrowdown') keys['arrowdown'] = false;
+      if (code === 37 || key === 'arrowleft') keys['arrowleft'] = false;
+      if (code === 39 || key === 'arrowright') keys['arrowright'] = false;
+    });
 
     function tryPlayMenuMusic() {
       if (gameState === 'MENU' && menuMusic.paused) {
@@ -303,7 +359,6 @@
     window.addEventListener('touchstart', tryPlayMenuMusic);
     window.addEventListener('keydown', tryPlayMenuMusic);
 
-    // Hết nhạc mà chưa tới cửa exit -> Thua
     chaseMusic.onended = function() {
       if (gameState === 'PLAYING' && player.hasKey) {
         gameOverText.innerText = "HẾT THỜI GIAN! Bạn chưa kịp thoát khỏi cánh cửa...";
@@ -474,7 +529,6 @@
             eye.lookTimer = 0;
           }
 
-          // Hiệu ứng Mắt thoắt ẩn thoắt hiện & nhấp nháy
           if (eye.fadeIn) {
             eye.opacity += eye.fadeSpeed;
             if (eye.opacity >= 1) eye.fadeIn = false;
@@ -492,6 +546,7 @@
       let moveX = joystickVector.x;
       let moveY = joystickVector.y;
 
+      // Xử lý di chuyển bằng các nút bấm LÊN XUỐNG TRÁI PHẢI TV / BÀN PHÍM
       if (keys['w'] || keys['arrowup']) moveY = -1;
       if (keys['s'] || keys['arrowdown']) moveY = 1;
       if (keys['a'] || keys['arrowleft']) moveX = -1;
@@ -532,20 +587,17 @@
           player.y = 300;
         }
 
-        // KHI NHẶT CHÌA KHÓA
         if (!keyItem.collected) {
           let distKey = Math.hypot(player.x - keyItem.x, player.y - keyItem.y);
           if (distKey < player.radius + keyItem.radius) {
             keyItem.collected = true;
             player.hasKey = true;
             
-            // Bắt đầu nhạc đếm ngược
             chaseMusic.currentTime = 0;
             chaseMusic.play().catch(e => console.log(e));
           }
         }
 
-        // LOGIC QUÁI VẬT: Nếu đã nhặt chìa khóa -> Luôn thấy player!
         if (player.hasKey) {
           npc.state = 'CHASE';
         } else {
@@ -558,7 +610,6 @@
           }
         }
 
-        // Xử lý di chuyển quái
         if (npc.state === 'CHASE') {
           let angle = Math.atan2(player.y - npc.y, player.x - npc.x);
           let nX = npc.x + Math.cos(angle) * npc.speed;
@@ -596,7 +647,6 @@
       gameInfo.innerText = '';
     }
 
-    // Vẽ mắt ở màn hình Menu (Chói đỏ, mờ ảo nhấp nháy)
     function drawEye(eye) {
       ctx.save();
       ctx.globalAlpha = eye.opacity;
@@ -680,26 +730,22 @@
         ctx.fill();
       }
 
-      // Vẽ nhân vật
       ctx.beginPath();
       ctx.arc(player.x, player.y, player.radius, 0, Math.PI * 2);
       ctx.fillStyle = '#00ffcc';
       ctx.fill();
 
-      // VẼ HIỆU ỨNG SƯƠNG MÙ BÓNG TỐI (CHUYỂN SANG ĐỎ KHI CÓ CHÌA KHÓA)
       const gradient = ctx.createRadialGradient(
         player.x, player.y, 30,
         player.x, player.y, 220
       );
 
       if (player.hasKey) {
-        // Sương mù màu ĐỎ MÁU khi đã nhặt chìa khóa
         gradient.addColorStop(0, 'rgba(150, 0, 0, 0)');
         gradient.addColorStop(0.5, 'rgba(180, 0, 0, 0.45)');
         gradient.addColorStop(0.85, 'rgba(120, 0, 0, 0.85)');
         gradient.addColorStop(1, 'rgba(50, 0, 0, 0.98)');
       } else {
-        // Sương mù ĐEN thông thường khi chưa nhặt chìa khóa
         gradient.addColorStop(0, 'rgba(0, 0, 0, 0)');
         gradient.addColorStop(0.8, 'rgba(0, 0, 0, 0.75)');
         gradient.addColorStop(1, 'rgba(0, 0, 0, 0.95)');
