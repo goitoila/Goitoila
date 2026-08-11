@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-  <title>Trò Chơi do sigma boy làm</title>
+  <title>Trò Chơi Kinh Dị - Mắt Đỏ Menu</title>
   <style>
     * {
       margin: 0;
@@ -33,7 +33,7 @@
       max-height: 600px;
       border: 2px solid #333;
       box-shadow: 0 0 30px rgba(255, 0, 0, 0.2);
-      background-color: #0a0a0a;
+      background-color: #050505;
     }
 
     canvas {
@@ -48,7 +48,7 @@
       left: 0;
       width: 100%;
       height: 100%;
-      background: rgba(0, 0, 0, 0.35); /* Để mờ đủ nhìn rõ ảnh mắt */
+      background: rgba(0, 0, 0, 0.4);
       display: flex;
       flex-direction: column;
       justify-content: center;
@@ -95,8 +95,8 @@
     }
 
     @keyframes pulse {
-      0%, 100% { opacity: 1; text-shadow: 0 0 10px #ff0000, 0 0 25px #8b0000; }
-      50% { opacity: 0.7; text-shadow: 0 0 20px #ff0000, 0 0 40px #ff0000; }
+      0%, 100% { opacity: 1; }
+      50% { opacity: 0.7; }
     }
 
     .hidden {
@@ -130,7 +130,6 @@
       box-shadow: 0 0 10px #ff0000;
     }
 
-    /* Thông báo Trạng thái Kỹ năng */
     #skill-status {
       position: absolute;
       top: 15px;
@@ -170,15 +169,15 @@
 
     <!-- Game Over Screen -->
     <div id="gameOverScreen" class="overlay hidden">
-      <h1 class="title" style="color: #ff0000;">NGU!</h1>
-      <p class="subtitle">Quái vật sẽ dí bạn trong bóng tối....</p>
+      <h1 class="title" style="color: #ff0000;">BẠN ĐÃ CHẾT!</h1>
+      <p class="subtitle">Quái vật đã bắt được bạn trong bóng tối...</p>
       <button id="restartBtn" class="btn">THỬ LẠI</button>
     </div>
 
     <!-- Win Screen -->
     <div id="winScreen" class="overlay hidden">
-      <h1 class="title" style="color: #00ffcc;">Tày rồi cu!</h1>
-      <p class="subtitle">Bạn đã ko bị dí!</p>
+      <h1 class="title" style="color: #00ffcc;">THOÁT NẠN!</h1>
+      <p class="subtitle">Bạn đã sống sót thành công!</p>
       <button id="winRestartBtn" class="btn">CHƠI LẠI</button>
     </div>
   </div>
@@ -197,14 +196,74 @@
     const joystickKnob = document.getElementById('joystick-knob');
     const skillStatus = document.getElementById('skill-status');
 
-    // Nạp ảnh mắt đỏ từ tệp cục bộ
-    const menuBgImage = new Image();
-    let menuBgImage.src = 'https://i.imgur.com/YOUR_IMAGE_ID.png'; // Thay link ảnh của bạn vào đây
-; // Đường dẫn đến tệp ảnh của bạn
+    // Tái tạo các nét vẽ con mắt đỏ nguệch ngoạc theo vị trí ảnh của bạn
+    const sketchEyes = [
+      { x: 120, y: 280, scale: 1.1, rot: -0.1, speed: 0.03, phase: 0 },
+      { x: 380, y: 260, scale: 0.7, rot: 0.3,  speed: 0.05, phase: 1.5 },
+      { x: 650, y: 160, scale: 0.9, rot: -0.2, speed: 0.02, phase: 3 },
+      { x: 150, y: 480, scale: 0.8, rot: 0.2,  speed: 0.04, phase: 4.5 },
+      { x: 500, y: 450, scale: 1.0, rot: -0.1, speed: 0.035, phase: 2 }
+    ];
 
-    menuBgImage.onload = function() {
-      isImageLoaded = true;
-    };
+    function drawHandDrawnEye(x, y, scale, rotation, alpha) {
+      ctx.save();
+      ctx.translate(x, y);
+      ctx.rotate(rotation);
+      ctx.scale(scale, scale);
+
+      ctx.strokeStyle = `rgba(255, 30, 30, ${alpha})`;
+      ctx.fillStyle = `rgba(255, 20, 20, ${alpha})`;
+      ctx.lineWidth = 3;
+      ctx.lineCap = 'round';
+      ctx.shadowColor = '#ff0000';
+      ctx.shadowBlur = 12 * alpha;
+
+      // Nét vẽ mi trên
+      ctx.beginPath();
+      ctx.moveTo(-50, 5);
+      ctx.quadraticCurveTo(-10, -35, 50, -10);
+      ctx.stroke();
+
+      // Nét vẽ mi dưới
+      ctx.beginPath();
+      ctx.moveTo(-45, 0);
+      ctx.quadraticCurveTo(0, 30, 45, 5);
+      ctx.stroke();
+
+      // Nhãn cầu/Đồng tử dạng nét đứt nguệch ngoạc
+      ctx.beginPath();
+      ctx.arc(0, 0, 7, 0, Math.PI * 2);
+      ctx.fill();
+
+      // Các nét gạch trang trí xung quanh mắt
+      ctx.beginPath();
+      ctx.moveTo(-20, 15); ctx.lineTo(-15, 25);
+      ctx.moveTo(-10, 18); ctx.lineTo(-5, 28);
+      ctx.moveTo(10, 15);  ctx.lineTo(15, 25);
+      ctx.stroke();
+
+      ctx.restore();
+    }
+
+    function drawMenuBackground() {
+      // Nền đen phai sương mờ
+      ctx.fillStyle = '#080808';
+      ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+      let grad = ctx.createRadialGradient(400, 300, 50, 400, 300, 500);
+      grad.addColorStop(0, '#150303');
+      grad.addColorStop(1, '#020202');
+      ctx.fillStyle = grad;
+      ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+      // Vẽ từng con mắt nhấp nháy đỏ
+      sketchEyes.forEach(eye => {
+        eye.phase += eye.speed;
+        let alpha = (Math.sin(eye.phase) + 1) / 2; // Biến thiên 0 -> 1
+        alpha = Math.pow(alpha, 1.5); // Làm hiệu ứng chớp tắt mượt hơn
+        drawHandDrawnEye(eye.x, eye.y, eye.scale, eye.rot, alpha);
+      });
+    }
 
     const keys = {};
     let joystickVector = { x: 0, y: 0 };
@@ -212,7 +271,6 @@
     window.addEventListener('keydown', e => keys[e.key.toLowerCase()] = true);
     window.addEventListener('keyup', e => keys[e.key.toLowerCase()] = false);
 
-    // Joystick Cảm ứng
     let joystickActive = false;
     let joystickCenter = { x: 0, y: 0 };
     const maxRadius = 35;
@@ -251,31 +309,6 @@
       joystickVector = { x: dx / maxRadius, y: dy / maxRadius };
     }
 
-    let pulseTimer = 0; // Biến tạo hiệu ứng nhấp nháy phát sáng cho mắt đỏ
-
-    function drawMenuBackground() {
-      ctx.fillStyle = '#050505';
-      ctx.fillRect(0, 0, canvas.width, canvas.height);
-
-      if (isImageLoaded) {
-        // Vẽ bức ảnh mắt đỏ của bạn
-        ctx.drawImage(menuBgImage, 0, 0, canvas.width, canvas.height);
-
-        // Tạo hiệu ứng nhấp nháy đỏ chớp tắt đè lên ảnh
-        pulseTimer += 0.04;
-        let glowAlpha = 0.15 + Math.sin(pulseTimer) * 0.15; 
-
-        ctx.fillStyle = `rgba(255, 0, 0, ${glowAlpha})`;
-        ctx.fillRect(0, 0, canvas.width, canvas.height);
-      } else {
-        // Thông báo nếu quên chưa đổi tên tệp ảnh
-        ctx.fillStyle = '#ff0000';
-        ctx.font = '16px monospace';
-        ctx.textAlign = 'center';
-        ctx.fillText('Đang tải ảnh mat-do.png...', canvas.width / 2, canvas.height / 2);
-      }
-    }
-
     let player, npc, keyItem, exitDoor, gameState;
     let cooldownTimer = 0;
     let skillActiveTimer = 0;
@@ -285,14 +318,7 @@
       gameState = 'PLAYING';
 
       player = { x: 100, y: 100, radius: 12, speed: 2.8, hasKey: false };
-      
-      npc = {
-        x: 700,
-        y: 500,
-        radius: 15,
-        speed: 1.9
-      };
-
+      npc = { x: 700, y: 500, radius: 15, speed: 1.9 };
       keyItem = { x: 700, y: 100, radius: 8, collected: false };
       exitDoor = { x: 50, y: 500, width: 30, height: 50 };
 
@@ -310,7 +336,6 @@
     function update() {
       if (gameState !== 'PLAYING') return;
 
-      // 1. Di chuyển Player
       let moveX = joystickVector.x;
       let moveY = joystickVector.y;
 
@@ -329,7 +354,6 @@
       player.x = Math.max(player.radius, Math.min(canvas.width - player.radius, player.x));
       player.y = Math.max(player.radius, Math.min(canvas.height - player.radius, player.y));
 
-      // 2. Quái vật đuổi theo
       const dx = player.x - npc.x;
       const dy = player.y - npc.y;
       const distance = Math.hypot(dx, dy);
@@ -339,7 +363,6 @@
         npc.y += (dy / distance) * npc.speed;
       }
 
-      // 3. Logic Kỹ năng BÓNG TỐI HÓA ĐỎ Ngẫu Nhiên
       if (!isRedSkillActive) {
         cooldownTimer--;
         const secondsLeft = Math.ceil(cooldownTimer / 60);
@@ -360,7 +383,6 @@
         }
       }
 
-      // 4. Va chạm
       if (!player.hasKey) {
         const distToKey = Math.hypot(player.x - keyItem.x, player.y - keyItem.y);
         if (distToKey < player.radius + keyItem.radius) {
@@ -387,18 +409,15 @@
       skillStatus.innerText = '';
     }
 
-    // Vẽ Game
     function draw() {
       if (gameState === 'MENU') {
         drawMenuBackground();
         return;
       }
 
-      // Sàn nhà
       ctx.fillStyle = '#111';
       ctx.fillRect(0, 0, canvas.width, canvas.height);
 
-      // Đường lưới bản đồ
       ctx.strokeStyle = '#222';
       ctx.lineWidth = 1;
       for (let x = 0; x < canvas.width; x += 40) {
@@ -408,11 +427,9 @@
         ctx.beginPath(); ctx.moveTo(0, y); ctx.lineTo(canvas.width, y); ctx.stroke();
       }
 
-      // Cửa thoát
       ctx.fillStyle = player.hasKey ? '#00ff88' : '#444';
       ctx.fillRect(exitDoor.x, exitDoor.y, exitDoor.width, exitDoor.height);
 
-      // Chìa khóa
       if (!keyItem.collected) {
         ctx.beginPath();
         ctx.arc(keyItem.x, keyItem.y, keyItem.radius, 0, Math.PI * 2);
@@ -423,20 +440,17 @@
         ctx.shadowBlur = 0;
       }
 
-      // Player
       ctx.beginPath();
       ctx.arc(player.x, player.y, player.radius, 0, Math.PI * 2);
       ctx.fillStyle = '#4da6ff';
       ctx.fill();
 
-      // Mắt player
       ctx.fillStyle = '#fff';
       ctx.beginPath();
       ctx.arc(player.x - 3, player.y - 3, 2, 0, Math.PI * 2);
       ctx.arc(player.x + 3, player.y - 3, 2, 0, Math.PI * 2);
       ctx.fill();
 
-      // Quái vật
       ctx.beginPath();
       ctx.arc(npc.x, npc.y, npc.radius, 0, Math.PI * 2);
       ctx.fillStyle = '#cc0000';
@@ -445,14 +459,12 @@
       ctx.fill();
       ctx.shadowBlur = 0;
 
-      // Mắt quái vật
       ctx.fillStyle = '#ffff00';
       ctx.beginPath();
       ctx.arc(npc.x - 4, npc.y - 3, 2, 0, Math.PI * 2);
       ctx.arc(npc.x + 4, npc.y - 3, 2, 0, Math.PI * 2);
       ctx.fill();
 
-      // --- BÓNG TỐI & SKILL HÓA ĐỎ ---
       const gradient = ctx.createRadialGradient(
         player.x, player.y, 20,
         player.x, player.y, 170
