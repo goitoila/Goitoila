@@ -164,7 +164,9 @@
 </head>
 <body>
 
-  <audio id="menuMusic" src="bgm.mp3" loop></audio>
+  <!-- Âm thanh Game -->
+  <audio id="menuMusic" src="bgm.mp3" loop preload="auto"></audio>
+  <audio id="chaseMusic" src="chase.mp3" preload="auto"></audio>
 
   <div id="game-container">
     <img id="gameover-bg" class="bg-screen-img hidden" src="gameover.png" alt="Game Over Background">
@@ -178,34 +180,38 @@
       <div id="joystick-knob"></div>
     </div>
 
+    <!-- Menu Screen -->
     <div id="menuScreen" class="overlay">
       <h1 class="title">NGỤC</h1>
       <div class="btn-group">
         <button id="startBtn" class="btn">BẮT ĐẦU CHƠI</button>
-        <button id="guideBtn" class="btn">HƯỚNG DẪN 3</button>
+        <button id="guideBtn" class="btn">HƯỚNG DẪN</button>
       </div>
     </div>
 
+    <!-- Màn hình Hướng Dẫn -->
     <div id="guideScreen" class="overlay hidden">
       <h1 class="title" style="font-size: 32px; margin-bottom: 15px;">HƯỚNG DẪN CHƠI</h1>
       <div class="subtitle">
         🏃 <b>Map 1:</b> Đi tới cầu thang (góc dưới phải) để xuống Map 2.<br><br>
         🗝️ <b>Map 2:</b> Tìm chìa khóa vàng trong mê cung tường đỏ.<br><br>
-        👾 <b>Quái vật:</b> Chỉ đi được đường màu đen. Nếu bạn khuất tầm nhìn, quái sẽ đi tuần!<br><br>
-        🚪 <b>Thoát:</b> Nhặt chìa khóa vàng -> Quay về Map 1 mở cửa EXIT!
+        ⏱️ <b>Lưu ý:</b> Nhặt chìa khóa sẽ kích hoạt nhạc đếm ngược. Nếu hết nhạc chưa thoát được ra EXIT, bạn sẽ <b>TỰ ĐỘNG CHẾT</b>!<br><br>
+        🚪 <b>Thoát:</b> Nhặt chìa khóa -> Chạy về Map 1 mở cửa EXIT khẩn cấp!
       </div>
       <button id="closeGuideBtn" class="btn">ĐÓNG</button>
     </div>
 
+    <!-- Game Over Screen -->
     <div id="gameOverScreen" class="overlay hidden">
-      <h1 class="title" style="font-size: 36px;">BẠN ĐÃ BỊ BẮT!</h1>
-      <p style="color: #ddd; margin-bottom: 20px;">Quái vật đã tóm được bạn trong bóng tối...</p>
+      <h1 class="title" style="font-size: 36px;">BẠN ĐÃ CHẾT!</h1>
+      <p id="gameOverText" style="color: #ddd; margin-bottom: 20px;">Thời gian đã hết! Ác quỷ đã nuốt chửng bạn...</p>
       <button id="restartBtn" class="btn">CHƠI LẠI</button>
     </div>
 
+    <!-- Win Screen -->
     <div id="winScreen" class="overlay hidden">
       <h1 class="title" style="color: #00ffcc; font-size: 32px;">THOÁT NẠN THÀNH CÔNG!</h1>
-      <p style="color: #ddd; margin-bottom: 20px;">Bạn đã tìm thấy ánh sáng hy vọng và trốn thoát thành công!</p>
+      <p style="color: #ddd; margin-bottom: 20px;">Bạn đã thoát khỏi ngục tối trước khi thời gian kết thúc!</p>
       <button id="backToMenuBtn" class="btn">VỀ MENU</button>
     </div>
   </div>
@@ -215,6 +221,7 @@
     const ctx = canvas.getContext('2d');
 
     const menuMusic = document.getElementById('menuMusic');
+    const chaseMusic = document.getElementById('chaseMusic');
 
     const gameOverBgImg = document.getElementById('gameover-bg');
     const winBgImg = document.getElementById('win-bg');
@@ -223,6 +230,7 @@
     const guideScreen = document.getElementById('guideScreen');
     const gameOverScreen = document.getElementById('gameOverScreen');
     const winScreen = document.getElementById('winScreen');
+    const gameOverText = document.getElementById('gameOverText');
     
     const startBtn = document.getElementById('startBtn');
     const guideBtn = document.getElementById('guideBtn');
@@ -276,14 +284,28 @@
     window.addEventListener('keydown', e => keys[e.key.toLowerCase()] = true);
     window.addEventListener('keyup', e => keys[e.key.toLowerCase()] = false);
 
-    // Kích hoạt phát nhạc khi người dùng tương tác lần đầu với trang web
-    function playMenuMusic() {
-      if (menuMusic.paused && gameState === 'MENU') {
-        menuMusic.play().catch(() => {});
+    // Phát nhạc menu
+    function tryPlayMenuMusic() {
+      if (gameState === 'MENU' && menuMusic.paused) {
+        menuMusic.play().then(() => {
+          window.removeEventListener('click', tryPlayMenuMusic);
+          window.removeEventListener('touchstart', tryPlayMenuMusic);
+          window.removeEventListener('keydown', tryPlayMenuMusic);
+        }).catch(err => console.log("Trình duyệt chặn autoplay:", err));
       }
     }
-    window.addEventListener('click', playMenuMusic);
-    window.addEventListener('touchstart', playMenuMusic);
+
+    window.addEventListener('click', tryPlayMenuMusic);
+    window.addEventListener('touchstart', tryPlayMenuMusic);
+    window.addEventListener('keydown', tryPlayMenuMusic);
+
+    // XỬ LÝ KHI HẾT NHẠC RẶỜI/RỢỢT ĐUỔI -> TỰ ĐỘNG CHẾT
+    chaseMusic.onended = function() {
+      if (gameState === 'PLAYING' && player.hasKey) {
+        gameOverText.innerText = "THỜI GIAN HẾT! Bản nhạc kết thúc và bạn chưa thể thoát...";
+        endGame(gameOverScreen, gameOverBgImg);
+      }
+    };
 
     let joystickActive = false;
     let joystickCenter = { x: 0, y: 0 };
@@ -325,14 +347,17 @@
 
     let player, npc, keyItem, exitDoor, stairsMap1, stairsMap2, gameState, currentMap;
 
-    function stopMenuMusic() {
+    function stopAllMusic() {
       menuMusic.pause();
       menuMusic.currentTime = 0;
+      chaseMusic.pause();
+      chaseMusic.currentTime = 0;
     }
 
     function showMenu() {
       gameState = 'MENU';
-      playMenuMusic();
+      stopAllMusic();
+      tryPlayMenuMusic();
 
       gameOverBgImg.classList.add('hidden');
       winBgImg.classList.add('hidden');
@@ -357,7 +382,7 @@
 
     function initGame() {
       gameState = 'PLAYING';
-      stopMenuMusic(); // Dừng nhạc menu khi bắt đầu chơi
+      stopAllMusic();
 
       currentMap = 1;
 
@@ -369,7 +394,7 @@
       keyItem = { x: 150, y: 120, radius: 10, collected: false };
 
       npc = {
-        x: 420, y: 140, radius: 14, speed: 1.8,
+        x: 420, y: 140, radius: 14, speed: 2.0,
         state: 'PATROL',
         targetX: 420, targetY: 140,
         patrolTimer: 0
@@ -473,7 +498,7 @@
       }
 
       if (currentMap === 1) {
-        gameInfo.innerText = player.hasKey ? "🗝️ ĐÃ CÓ CHÌA KHÓA! Hãy vào cửa EXIT ở góc trái!" : "📍 MAP 1: Xuống cầu thang góc dưới phải để sang Map 2";
+        gameInfo.innerText = player.hasKey ? "⚠️ CHẠY MAU! Vào cửa EXIT ở góc trái trước khi hết nhạc!" : "📍 MAP 1: Xuống cầu thang góc dưới phải để sang Map 2";
         
         if (player.x > stairsMap1.x && player.y > stairsMap1.y) {
           currentMap = 2;
@@ -485,7 +510,7 @@
         }
       } 
       else if (currentMap === 2) {
-        gameInfo.innerText = player.hasKey ? "🗝️ ĐÃ LẤY CHÌA KHÓA! Quay về Map 1!" : "📍 MAP 2: Tìm chìa khóa vàng & Tránh xa quái vật!";
+        gameInfo.innerText = player.hasKey ? "⚠️ ĐÃ CÓ CHÌA KHÓA! Chạy về Map 1 khẩn cấp!" : "📍 MAP 2: Tìm chìa khóa vàng & Tránh xa quái vật!";
 
         if (player.x > stairsMap2.x && player.y > stairsMap2.y) {
           currentMap = 1;
@@ -493,11 +518,16 @@
           player.y = 300;
         }
 
+        // KIỂM TRA NHẶT CHÌA KHÓA VÀ PHÁT NHẠC ĐẾM NGƯỢC
         if (!keyItem.collected) {
           let distKey = Math.hypot(player.x - keyItem.x, player.y - keyItem.y);
           if (distKey < player.radius + keyItem.radius) {
             keyItem.collected = true;
             player.hasKey = true;
+            
+            // Phát bản nhạc truy đuổi/đếm ngược
+            chaseMusic.currentTime = 0;
+            chaseMusic.play().catch(e => console.log(e));
           }
         }
 
@@ -531,6 +561,7 @@
         }
 
         if (distToPlayer < player.radius + npc.radius) {
+          gameOverText.innerText = "Bạn đã bị quái vật tóm được trong bóng tối!";
           endGame(gameOverScreen, gameOverBgImg);
         }
       }
@@ -538,6 +569,7 @@
 
     function endGame(screen, bgImg) {
       gameState = 'ENDED';
+      stopAllMusic();
       bgImg.classList.remove('hidden');
       screen.classList.remove('hidden');
       joystickZone.style.display = 'none';
