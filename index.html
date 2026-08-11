@@ -43,24 +43,16 @@
       height: 100%;
     }
 
-    #menu-eyes-bg {
+    /* Background Images for States */
+    .bg-screen-img {
       position: absolute;
       top: 0;
       left: 0;
       width: 100%;
       height: 100%;
       z-index: 1;
-      background: #050505;
+      object-fit: cover;
       pointer-events: none;
-    }
-
-    .eye-glow {
-      animation: blinkGlow 2.5s infinite ease-in-out;
-    }
-
-    @keyframes blinkGlow {
-      0%, 100% { opacity: 0.2; filter: drop-shadow(0 0 2px #ff0000); }
-      50% { opacity: 1; filter: drop-shadow(0 0 15px #ff0000); }
     }
 
     .overlay {
@@ -69,7 +61,7 @@
       left: 0;
       width: 100%;
       height: 100%;
-      background: rgba(0, 0, 0, 0.7);
+      background: rgba(0, 0, 0, 0.5);
       display: flex;
       flex-direction: column;
       justify-content: center;
@@ -161,22 +153,10 @@
 <body>
 
   <div id="game-container">
-    <!-- SVG Menu Mắt Đỏ -->
-    <svg id="menu-eyes-bg" viewBox="0 0 800 600" xmlns="http://www.w3.org/2000/svg">
-      <rect width="800" height="600" fill="#050505"/>
-      <g class="eye-glow" style="animation-delay: 0s;">
-        <path d="M 100 200 Q 150 160 200 200 Q 150 240 100 200 Z" fill="none" stroke="#ff0000" stroke-width="4"/>
-        <circle cx="150" cy="200" r="8" fill="#ff0000"/>
-      </g>
-      <g class="eye-glow" style="animation-delay: 0.8s;">
-        <path d="M 350 280 Q 400 230 450 280 Q 400 330 350 280 Z" fill="none" stroke="#ff0000" stroke-width="5"/>
-        <circle cx="400" cy="280" r="12" fill="#ff0000"/>
-      </g>
-      <g class="eye-glow" style="animation-delay: 1.5s;">
-        <path d="M 600 150 Q 650 120 700 150 Q 650 180 600 150 Z" fill="none" stroke="#ff0000" stroke-width="4"/>
-        <circle cx="650" cy="150" r="7" fill="#ff0000"/>
-      </g>
-    </svg>
+    <!-- Nền các màn hình -->
+    <img id="menu-eyes-bg" class="bg-screen-img" src="mat-do.png" alt="Menu Background">
+    <img id="gameover-bg" class="bg-screen-img hidden" src="gameover.png" alt="Game Over Background">
+    <img id="win-bg" class="bg-screen-img hidden" src="win.png" alt="Win Background">
 
     <canvas id="gameCanvas" width="800" height="600"></canvas>
     
@@ -202,14 +182,14 @@
     <div id="gameOverScreen" class="overlay hidden">
       <h1 class="title">BẠN ĐÃ BỊ BẮT!</h1>
       <p class="subtitle">Quái vật đã tóm được bạn trong bóng tối...</p>
-      <button id="restartBtn" class="btn">THỬ LẠI</button>
+      <button id="restartBtn" class="btn">CHƠI LẠI</button>
     </div>
 
     <!-- Win Screen -->
     <div id="winScreen" class="overlay hidden">
       <h1 class="title" style="color: #00ffcc;">THOÁT NẠN THÀNH CÔNG!</h1>
-      <p class="subtitle">Bạn đã lấy chìa khóa vàng và mở cửa trốn thoát!</p>
-      <button id="winRestartBtn" class="btn">CHƠI LẠI</button>
+      <p class="subtitle">Bạn đã tìm thấy ánh sáng hy vọng và trốn thoát thành công!</p>
+      <button id="backToMenuBtn" class="btn">VỀ MENU</button>
     </div>
   </div>
 
@@ -217,39 +197,44 @@
     const canvas = document.getElementById('gameCanvas');
     const ctx = canvas.getContext('2d');
 
-    const menuBgSvg = document.getElementById('menu-eyes-bg');
+    const menuBgImg = document.getElementById('menu-eyes-bg');
+    const gameOverBgImg = document.getElementById('gameover-bg');
+    const winBgImg = document.getElementById('win-bg');
+
     const menuScreen = document.getElementById('menuScreen');
     const gameOverScreen = document.getElementById('gameOverScreen');
     const winScreen = document.getElementById('winScreen');
+    
     const startBtn = document.getElementById('startBtn');
     const restartBtn = document.getElementById('restartBtn');
-    const winRestartBtn = document.getElementById('winRestartBtn');
+    const backToMenuBtn = document.getElementById('backToMenuBtn');
+    
     const joystickZone = document.getElementById('joystick-zone');
     const joystickKnob = document.getElementById('joystick-knob');
     const gameInfo = document.getElementById('game-info');
 
-    // Nạp 2 bức ảnh phác thảo của bạn làm nền Map
+    // Nạp ảnh Map 1 và Map 2 từ GitHub
     const imgMap1 = new Image();
-    imgMap1.src = 'map1.png'; // Đặt tên ảnh Map 1 là map1.png
+    imgMap1.src = 'map1.png';
 
     const imgMap2 = new Image();
-    imgMap2.src = 'map2.png'; // Đặt tên ảnh Map 2 là map2.png
+    imgMap2.src = 'map2.png';
 
-    // Định vị các Bức Tường Đỏ ở Map 2 (Khớp chính xác với nét vẽ)
+    // Định vị Tường Đỏ ở Map 2
     const redWallsMap2 = [
-      { x: 50,  y: 80,  w: 220, h: 30 }, // Nét ngang trên trái
-      { x: 100, y: 160, w: 180, h: 30 }, // Nét ngang giữa 1
-      { x: 250, y: 160, w: 30,  h: 180 },// Nét dọc trái
-      { x: 80,  y: 330, w: 200, h: 30 }, // Nét ngang giữa 2
-      { x: 360, y: 80,  w: 30,  h: 270 },// Nét dọc trung tâm
-      { x: 450, y: 80,  w: 30,  h: 170 },// Nét dọc phải 1
-      { x: 450, y: 220, w: 250, h: 30 }, // Nét ngang phải 1
-      { x: 600, y: 20,  w: 30,  h: 230 },// Nét dọc dài phải
-      { x: 100, y: 410, w: 40,  h: 180 },// Nét dọc bottom-left
-      { x: 240, y: 450, w: 260, h: 30 }, // Nét ngang bottom-center
-      { x: 350, y: 480, w: 30,  h: 90 },  // Nét dọc xuống
-      { x: 490, y: 410, w: 30,  h: 110 },// Nét dọc bottom-right
-      { x: 520, y: 350, w: 280, h: 30 }  // Nét ngang bottom-right
+      { x: 50,  y: 80,  w: 220, h: 30 },
+      { x: 100, y: 160, w: 180, h: 30 },
+      { x: 250, y: 160, w: 30,  h: 180 },
+      { x: 80,  y: 330, w: 200, h: 30 },
+      { x: 360, y: 80,  w: 30,  h: 270 },
+      { x: 450, y: 80,  w: 30,  h: 170 },
+      { x: 450, y: 220, w: 250, h: 30 },
+      { x: 600, y: 20,  w: 30,  h: 230 },
+      { x: 100, y: 410, w: 40,  h: 180 },
+      { x: 240, y: 450, w: 260, h: 30 },
+      { x: 350, y: 480, w: 30,  h: 90 },
+      { x: 490, y: 410, w: 30,  h: 110 },
+      { x: 520, y: 350, w: 280, h: 30 }
     ];
 
     const keys = {};
@@ -298,23 +283,30 @@
 
     let player, npc, keyItem, exitDoor, stairsMap1, stairsMap2, gameState, currentMap;
 
+    function showMenu() {
+      gameState = 'MENU';
+      menuBgImg.classList.remove('hidden');
+      gameOverBgImg.classList.add('hidden');
+      winBgImg.classList.add('hidden');
+
+      menuScreen.classList.remove('hidden');
+      gameOverScreen.classList.add('hidden');
+      winScreen.classList.add('hidden');
+      joystickZone.style.display = 'none';
+      gameInfo.innerText = '';
+    }
+
     function initGame() {
       gameState = 'PLAYING';
       currentMap = 1;
 
       player = { x: 200, y: 300, radius: 12, speed: 2.8, hasKey: false };
 
-      // Vị trí cửa EXIT theo nét vẽ Map 1 (góc trên trái)
       exitDoor = { x: 80, y: 80, width: 90, height: 120 };
-      
-      // Vị trí cầu thang theo nét vẽ Map 1 (góc dưới phải)
       stairsMap1 = { x: 600, y: 380, width: 180, height: 200 };
       stairsMap2 = { x: 650, y: 480, width: 120, height: 100 };
-
-      // Chìa khóa vàng ở góc hẻm Map 2
       keyItem = { x: 150, y: 120, radius: 10, collected: false };
 
-      // Quái vật ở Map 2
       npc = {
         x: 420, y: 140, radius: 14, speed: 1.8,
         state: 'PATROL',
@@ -322,14 +314,16 @@
         patrolTimer: 0
       };
 
-      menuBgSvg.style.display = 'none';
+      menuBgImg.classList.add('hidden');
+      gameOverBgImg.classList.add('hidden');
+      winBgImg.classList.add('hidden');
+
       menuScreen.classList.add('hidden');
       gameOverScreen.classList.add('hidden');
       winScreen.classList.add('hidden');
       joystickZone.style.display = 'block';
     }
 
-    // Tường đỏ cản đường ở Map 2
     function checkWallCollision(newX, newY, radius) {
       if (currentMap !== 2) return false;
       for (let wall of redWallsMap2) {
@@ -344,7 +338,6 @@
       return false;
     }
 
-    // Kiểm tra tầm nhìn quái vật (không bị cản tường)
     function hasLineOfSight(x1, y1, x2, y2) {
       const steps = 20;
       for (let i = 0; i <= steps; i++) {
@@ -358,7 +351,6 @@
     function update() {
       if (gameState !== 'PLAYING') return;
 
-      // Di chuyển Nhân Vật
       let moveX = joystickVector.x;
       let moveY = joystickVector.y;
 
@@ -381,34 +373,28 @@
         player.y = Math.max(player.radius, Math.min(canvas.height - player.radius, nextY));
       }
 
-      // Logic Map 1
       if (currentMap === 1) {
         gameInfo.innerText = player.hasKey ? "🗝️ ĐÃ CÓ CHÌA KHÓA! Hãy vào cửa EXIT ở góc trái!" : "📍 MAP 1: Xuống cầu thang góc dưới phải để sang Map 2";
         
-        // Đi cầu thang sang Map 2
         if (player.x > stairsMap1.x && player.y > stairsMap1.y) {
           currentMap = 2;
           player.x = 650;
           player.y = 500;
         }
 
-        // Mở cửa EXIT thoát game
         if (player.hasKey && player.x < exitDoor.x + exitDoor.width && player.y < exitDoor.y + exitDoor.height) {
-          endGame(winScreen);
+          endGame(winScreen, winBgImg);
         }
       } 
-      // Logic Map 2
       else if (currentMap === 2) {
         gameInfo.innerText = player.hasKey ? "🗝️ ĐÃ LẤY CHÌA KHÓA! Quay về Map 1!" : "📍 MAP 2: Tìm chìa khóa vàng & Tránh xa quái vật!";
 
-        // Đi cầu thang về Map 1
         if (player.x > stairsMap2.x && player.y > stairsMap2.y) {
           currentMap = 1;
-          player.x = 620;
-          player.y = 420;
+          player.x = 400;
+          player.y = 300;
         }
 
-        // Nhặt chìa khóa
         if (!keyItem.collected) {
           let distKey = Math.hypot(player.x - keyItem.x, player.y - keyItem.y);
           if (distKey < player.radius + keyItem.radius) {
@@ -417,14 +403,13 @@
           }
         }
 
-        // Quái vật Đuổi / Tuần tra
         let distToPlayer = Math.hypot(player.x - npc.x, player.y - npc.y);
         let canSee = distToPlayer < 220 && hasLineOfSight(npc.x, npc.y, player.x, player.y);
 
         if (canSee) {
           npc.state = 'CHASE';
         } else if (npc.state === 'CHASE') {
-          npc.state = 'PATROL'; // Mất dấu -> Chuyển sang đi tuần
+          npc.state = 'PATROL';
         }
 
         if (npc.state === 'CHASE') {
@@ -447,24 +432,23 @@
           if (!checkWallCollision(npc.x, nY, npc.radius)) npc.y = nY;
         }
 
-        // Bị bắt
         if (distToPlayer < player.radius + npc.radius) {
-          endGame(gameOverScreen);
+          endGame(gameOverScreen, gameOverBgImg);
         }
       }
     }
 
-    function endGame(screen) {
+    function endGame(screen, bgImg) {
       gameState = 'ENDED';
+      bgImg.classList.remove('hidden');
       screen.classList.remove('hidden');
       joystickZone.style.display = 'none';
       gameInfo.innerText = '';
     }
 
     function draw() {
-      if (gameState === 'MENU') return;
+      if (gameState === 'MENU' || gameState === 'ENDED') return;
 
-      // Vẽ hình ảnh phác thảo của bạn làm nền Map
       if (currentMap === 1) {
         if (imgMap1.complete) {
           ctx.drawImage(imgMap1, 0, 0, canvas.width, canvas.height);
@@ -478,7 +462,6 @@
           ctx.fillStyle = '#111'; ctx.fillRect(0, 0, canvas.width, canvas.height);
         }
 
-        // Vẽ Chìa Khóa Vàng (Map 2)
         if (!keyItem.collected) {
           ctx.beginPath();
           ctx.arc(keyItem.x, keyItem.y, keyItem.radius, 0, Math.PI * 2);
@@ -489,7 +472,6 @@
           ctx.shadowBlur = 0;
         }
 
-        // Vẽ Quái Vật Đỏ (Map 2)
         ctx.beginPath();
         ctx.arc(npc.x, npc.y, npc.radius, 0, Math.PI * 2);
         ctx.fillStyle = npc.state === 'CHASE' ? '#ff0000' : '#a00';
@@ -498,7 +480,6 @@
         ctx.fill();
         ctx.shadowBlur = 0;
 
-        // Mắt Quái vật
         ctx.fillStyle = '#ffff00';
         ctx.beginPath();
         ctx.arc(npc.x - 4, npc.y - 3, 2, 0, Math.PI * 2);
@@ -506,13 +487,11 @@
         ctx.fill();
       }
 
-      // Vẽ Nhân Vật Người Chơi (Xanh Lá)
       ctx.beginPath();
       ctx.arc(player.x, player.y, player.radius, 0, Math.PI * 2);
       ctx.fillStyle = '#00ffcc';
       ctx.fill();
 
-      // Hiệu ứng Bóng Tối/Đèn Pin quanh Nhân Vật
       const gradient = ctx.createRadialGradient(
         player.x, player.y, 40,
         player.x, player.y, 200
@@ -532,9 +511,9 @@
 
     startBtn.addEventListener('click', initGame);
     restartBtn.addEventListener('click', initGame);
-    winRestartBtn.addEventListener('click', initGame);
+    backToMenuBtn.addEventListener('click', showMenu);
 
-    gameState = 'MENU';
+    showMenu();
     gameLoop();
   </script>
 </body>
