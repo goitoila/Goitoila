@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-  <title>Trò Chơi Kinh Dị - 2 Màn Chơi</title>
+  <title>Trò Chơi Kinh Dị - Mê Cung Tường Đỏ</title>
   <style>
     * {
       margin: 0;
@@ -69,7 +69,7 @@
       left: 0;
       width: 100%;
       height: 100%;
-      background: rgba(0, 0, 0, 0.65);
+      background: rgba(0, 0, 0, 0.7);
       display: flex;
       flex-direction: column;
       justify-content: center;
@@ -80,7 +80,7 @@
     }
 
     .title {
-      font-size: 32px;
+      font-size: 30px;
       color: #ff0000;
       text-shadow: 0 0 10px #ff0000, 0 0 25px #8b0000;
       margin-bottom: 20px;
@@ -117,7 +117,7 @@
 
     .hidden { display: none !important; }
 
-    /* Joystick Controls */
+    /* Joystick Control */
     #joystick-zone {
       position: absolute;
       bottom: 30px;
@@ -151,7 +151,7 @@
       text-align: center;
       color: #ff0000;
       font-weight: bold;
-      font-size: 16px;
+      font-size: 15px;
       text-shadow: 0 0 8px #ff0000;
       pointer-events: none;
       z-index: 16;
@@ -192,23 +192,23 @@
       <p class="subtitle">
         🏃 <b>Map 1:</b> Đi tới cầu thang (góc dưới phải) để xuống Map 2.<br>
         🗝️ <b>Map 2:</b> Tìm chìa khóa vàng trong mê cung tường đỏ.<br>
-        👾 <b>Quái vật:</b> Xuất hiện ở Map 2. Nếu đi khuất tầm nhìn, quái sẽ đi tuần tra!<br>
-        🚪 <b>Thoát:</b> Cầm chìa khóa về Map 1 mở cửa EXIT phát sáng!
+        👾 <b>Quái vật:</b> Chỉ đi được đường màu đen. Nếu bạn khuất tầm nhìn, quái sẽ đi tuần!<br>
+        🚪 <b>Thoát:</b> Nhặt chìa khóa vàng -> Quay về Map 1 mở cửa EXIT!
       </p>
       <button id="startBtn" class="btn">BẮT ĐẦU CHƠI</button>
     </div>
 
     <!-- Game Over Screen -->
     <div id="gameOverScreen" class="overlay hidden">
-      <h1 class="title">BẠN ĐÃ CHẾT!</h1>
-      <p class="subtitle">Quái vật đã tóm được bạn trong mê cung...</p>
+      <h1 class="title">BẠN ĐÃ BỊ BẮT!</h1>
+      <p class="subtitle">Quái vật đã tóm được bạn trong bóng tối...</p>
       <button id="restartBtn" class="btn">THỬ LẠI</button>
     </div>
 
     <!-- Win Screen -->
     <div id="winScreen" class="overlay hidden">
       <h1 class="title" style="color: #00ffcc;">THOÁT NẠN THÀNH CÔNG!</h1>
-      <p class="subtitle">Bạn đã tìm thấy chìa khóa và trốn thoát an toàn!</p>
+      <p class="subtitle">Bạn đã lấy chìa khóa vàng và mở cửa trốn thoát!</p>
       <button id="winRestartBtn" class="btn">CHƠI LẠI</button>
     </div>
   </div>
@@ -228,21 +228,28 @@
     const joystickKnob = document.getElementById('joystick-knob');
     const gameInfo = document.getElementById('game-info');
 
-    // Các Bức Tường Đỏ ở Map 2 (dựa theo hình phác thảo)
-    const redWalls = [
-      { x: 50,  y: 80,  w: 220, h: 20 }, // Nét ngang top-left
-      { x: 80,  y: 180, w: 200, h: 20 }, // Nét ngang giữa-left 1
-      { x: 260, y: 180, w: 20,  h: 180 },// Nét dọc trái
-      { x: 80,  y: 340, w: 200, h: 20 }, // Nét ngang giữa-left 2
-      { x: 370, y: 140, w: 20,  h: 220 },// Nét dọc trung tâm
-      { x: 450, y: 120, w: 20,  h: 140 },// Nét dọc phải 1
-      { x: 450, y: 240, w: 250, h: 20 }, // Nét ngang phải 1
-      { x: 580, y: 30,  w: 20,  h: 230 },// Nét dọc dài phải
-      { x: 100, y: 460, w: 20,  h: 120 },// Nét dọc bottom-left
-      { x: 250, y: 460, w: 250, h: 20 }, // Nét ngang bottom-center
-      { x: 360, y: 480, w: 20,  h: 70 },  // Nét dọc xuống
-      { x: 500, y: 360, w: 20,  h: 120 },// Nét dọc bottom-right
-      { x: 520, y: 360, w: 280, h: 20 }  // Nét ngang bottom-right
+    // Nạp 2 bức ảnh phác thảo của bạn làm nền Map
+    const imgMap1 = new Image();
+    imgMap1.src = 'map1.png'; // Đặt tên ảnh Map 1 là map1.png
+
+    const imgMap2 = new Image();
+    imgMap2.src = 'map2.png'; // Đặt tên ảnh Map 2 là map2.png
+
+    // Định vị các Bức Tường Đỏ ở Map 2 (Khớp chính xác với nét vẽ)
+    const redWallsMap2 = [
+      { x: 50,  y: 80,  w: 220, h: 30 }, // Nét ngang trên trái
+      { x: 100, y: 160, w: 180, h: 30 }, // Nét ngang giữa 1
+      { x: 250, y: 160, w: 30,  h: 180 },// Nét dọc trái
+      { x: 80,  y: 330, w: 200, h: 30 }, // Nét ngang giữa 2
+      { x: 360, y: 80,  w: 30,  h: 270 },// Nét dọc trung tâm
+      { x: 450, y: 80,  w: 30,  h: 170 },// Nét dọc phải 1
+      { x: 450, y: 220, w: 250, h: 30 }, // Nét ngang phải 1
+      { x: 600, y: 20,  w: 30,  h: 230 },// Nét dọc dài phải
+      { x: 100, y: 410, w: 40,  h: 180 },// Nét dọc bottom-left
+      { x: 240, y: 450, w: 260, h: 30 }, // Nét ngang bottom-center
+      { x: 350, y: 480, w: 30,  h: 90 },  // Nét dọc xuống
+      { x: 490, y: 410, w: 30,  h: 110 },// Nét dọc bottom-right
+      { x: 520, y: 350, w: 280, h: 30 }  // Nét ngang bottom-right
     ];
 
     const keys = {};
@@ -295,23 +302,23 @@
       gameState = 'PLAYING';
       currentMap = 1;
 
-      player = { x: 150, y: 250, radius: 12, speed: 2.8, hasKey: false };
+      player = { x: 200, y: 300, radius: 12, speed: 2.8, hasKey: false };
 
-      // Cửa EXIT Map 1
-      exitDoor = { x: 60, y: 60, width: 80, height: 90 };
+      // Vị trí cửa EXIT theo nét vẽ Map 1 (góc trên trái)
+      exitDoor = { x: 80, y: 80, width: 90, height: 120 };
       
-      // Cầu thang chuyển cảnh
-      stairsMap1 = { x: 680, y: 460, width: 90, height: 100 };
-      stairsMap2 = { x: 680, y: 480, width: 90, height: 100 };
+      // Vị trí cầu thang theo nét vẽ Map 1 (góc dưới phải)
+      stairsMap1 = { x: 600, y: 380, width: 180, height: 200 };
+      stairsMap2 = { x: 650, y: 480, width: 120, height: 100 };
 
-      // Chìa khóa vàng ở Map 2
-      keyItem = { x: 140, y: 130, radius: 10, collected: false };
+      // Chìa khóa vàng ở góc hẻm Map 2
+      keyItem = { x: 150, y: 120, radius: 10, collected: false };
 
       // Quái vật ở Map 2
       npc = {
-        x: 400, y: 100, radius: 15, speed: 1.8,
-        state: 'PATROL', // PATROL (Tuần tra) hoặc CHASE (Đuổi theo)
-        targetX: 400, targetY: 100,
+        x: 420, y: 140, radius: 14, speed: 1.8,
+        state: 'PATROL',
+        targetX: 420, targetY: 140,
         patrolTimer: 0
       };
 
@@ -322,23 +329,22 @@
       joystickZone.style.display = 'block';
     }
 
-    // Kiểm tra va chạm với tường đỏ
+    // Tường đỏ cản đường ở Map 2
     function checkWallCollision(newX, newY, radius) {
       if (currentMap !== 2) return false;
-      for (let wall of redWalls) {
+      for (let wall of redWallsMap2) {
         let closestX = Math.max(wall.x, Math.min(newX, wall.x + wall.w));
         let closestY = Math.max(wall.y, Math.min(newY, wall.y + wall.h));
         let distanceX = newX - closestX;
         let distanceY = newY - closestY;
-        let distanceSquared = (distanceX * distanceX) + (distanceY * distanceY);
-        if (distanceSquared < (radius * radius)) {
+        if ((distanceX * distanceX + distanceY * distanceY) < (radius * radius)) {
           return true;
         }
       }
       return false;
     }
 
-    // Kiểm tra xem quái có nhìn thấy người chơi không (không bị tường cản)
+    // Kiểm tra tầm nhìn quái vật (không bị cản tường)
     function hasLineOfSight(x1, y1, x2, y2) {
       const steps = 20;
       for (let i = 0; i <= steps; i++) {
@@ -352,7 +358,7 @@
     function update() {
       if (gameState !== 'PLAYING') return;
 
-      // 1. Di chuyển Player
+      // Di chuyển Nhân Vật
       let moveX = joystickVector.x;
       let moveY = joystickVector.y;
 
@@ -362,8 +368,7 @@
       if (keys['d'] || keys['arrowright']) moveX = 1;
 
       if (moveX !== 0 && moveY !== 0 && !joystickActive) {
-        moveX *= 0.7071;
-        moveY *= 0.7071;
+        moveX *= 0.7071; moveY *= 0.7071;
       }
 
       let nextX = player.x + moveX * player.speed;
@@ -376,30 +381,31 @@
         player.y = Math.max(player.radius, Math.min(canvas.height - player.radius, nextY));
       }
 
-      // 2. Chuyển Map
+      // Logic Map 1
       if (currentMap === 1) {
-        gameInfo.innerText = player.hasKey ? "🗝️ ĐÃ CÓ CHÌA KHÓA! Hãy đến cửa EXIT!" : "📍 MAP 1: Xuống cầu thang góc phải để sang Map 2";
+        gameInfo.innerText = player.hasKey ? "🗝️ ĐÃ CÓ CHÌA KHÓA! Hãy vào cửa EXIT ở góc trái!" : "📍 MAP 1: Xuống cầu thang góc dưới phải để sang Map 2";
         
-        // Đi vào cầu thang sang Map 2
+        // Đi cầu thang sang Map 2
         if (player.x > stairsMap1.x && player.y > stairsMap1.y) {
           currentMap = 2;
           player.x = 650;
-          player.y = 520;
+          player.y = 500;
         }
 
-        // Thoát game ở Map 1
+        // Mở cửa EXIT thoát game
         if (player.hasKey && player.x < exitDoor.x + exitDoor.width && player.y < exitDoor.y + exitDoor.height) {
           endGame(winScreen);
         }
       } 
+      // Logic Map 2
       else if (currentMap === 2) {
-        gameInfo.innerText = player.hasKey ? "🗝️ ĐÃ LẤY CHÌA KHÓA! Quay lại Map 1!" : "📍 MAP 2: Tìm chìa khóa vàng & Tránh quái vật!";
+        gameInfo.innerText = player.hasKey ? "🗝️ ĐÃ LẤY CHÌA KHÓA! Quay về Map 1!" : "📍 MAP 2: Tìm chìa khóa vàng & Tránh xa quái vật!";
 
-        // Đi lại cầu thang về Map 1
+        // Đi cầu thang về Map 1
         if (player.x > stairsMap2.x && player.y > stairsMap2.y) {
           currentMap = 1;
-          player.x = 650;
-          player.y = 500;
+          player.x = 620;
+          player.y = 420;
         }
 
         // Nhặt chìa khóa
@@ -411,7 +417,7 @@
           }
         }
 
-        // --- AI QUÁI VẬT (MAP 2) ---
+        // Quái vật Đuổi / Tuần tra
         let distToPlayer = Math.hypot(player.x - npc.x, player.y - npc.y);
         let canSee = distToPlayer < 220 && hasLineOfSight(npc.x, npc.y, player.x, player.y);
 
@@ -422,21 +428,18 @@
         }
 
         if (npc.state === 'CHASE') {
-          // Đuổi theo người chơi
           let angle = Math.atan2(player.y - npc.y, player.x - npc.x);
           let nX = npc.x + Math.cos(angle) * npc.speed;
           let nY = npc.y + Math.sin(angle) * npc.speed;
           if (!checkWallCollision(nX, npc.y, npc.radius)) npc.x = nX;
           if (!checkWallCollision(npc.x, nY, npc.radius)) npc.y = nY;
         } else {
-          // Đi tuần tra ngẫu nhiên
           npc.patrolTimer--;
           if (npc.patrolTimer <= 0) {
             npc.targetX = 100 + Math.random() * 600;
             npc.targetY = 100 + Math.random() * 400;
-            npc.patrolTimer = 180 + Math.random() * 120;
+            npc.patrolTimer = 150 + Math.random() * 100;
           }
-
           let angle = Math.atan2(npc.targetY - npc.y, npc.targetX - npc.x);
           let nX = npc.x + Math.cos(angle) * (npc.speed * 0.6);
           let nY = npc.y + Math.sin(angle) * (npc.speed * 0.6);
@@ -444,7 +447,7 @@
           if (!checkWallCollision(npc.x, nY, npc.radius)) npc.y = nY;
         }
 
-        // Bắt người chơi
+        // Bị bắt
         if (distToPlayer < player.radius + npc.radius) {
           endGame(gameOverScreen);
         }
@@ -458,70 +461,24 @@
       gameInfo.innerText = '';
     }
 
-    // --- VẼ ĐỒ HỌA ---
     function draw() {
       if (gameState === 'MENU') return;
 
-      // Nền chung
-      ctx.fillStyle = '#181818';
-      ctx.fillRect(0, 0, canvas.width, canvas.height);
-
+      // Vẽ hình ảnh phác thảo của bạn làm nền Map
       if (currentMap === 1) {
-        // === VẼ MAP 1 ===
-        // Lưới ô vuông xám
-        ctx.strokeStyle = '#333';
-        ctx.lineWidth = 1;
-        for (let x = 0; x < canvas.width; x += 50) {
-          ctx.beginPath(); ctx.moveTo(x, 0); ctx.lineTo(x, canvas.height); ctx.stroke();
+        if (imgMap1.complete) {
+          ctx.drawImage(imgMap1, 0, 0, canvas.width, canvas.height);
+        } else {
+          ctx.fillStyle = '#222'; ctx.fillRect(0, 0, canvas.width, canvas.height);
         }
-        for (let y = 0; y < canvas.height; y += 50) {
-          ctx.beginPath(); ctx.moveTo(0, y); ctx.lineTo(canvas.width, y); ctx.stroke();
-        }
-
-        // Cửa EXIT (Góc trên trái)
-        ctx.fillStyle = player.hasKey ? '#ffd700' : '#444';
-        ctx.shadowColor = player.hasKey ? '#ffd700' : 'transparent';
-        ctx.shadowBlur = 20;
-        ctx.fillRect(exitDoor.x, exitDoor.y, exitDoor.width, exitDoor.height);
-        ctx.shadowBlur = 0;
-        ctx.fillStyle = '#000';
-        ctx.font = 'bold 16px monospace';
-        ctx.fillText("EXIT", exitDoor.x + 20, exitDoor.y + 50);
-
-        // Cầu Thang (Góc dưới phải)
-        ctx.fillStyle = '#222';
-        ctx.fillRect(stairsMap1.x, stairsMap1.y, stairsMap1.width, stairsMap1.height);
-        ctx.fillStyle = '#666';
-        for (let i = 0; i < 5; i++) {
-          ctx.fillRect(stairsMap1.x + 10, stairsMap1.y + i * 18, 70, 8);
-        }
-        ctx.fillStyle = '#fff';
-        ctx.font = '12px monospace';
-        ctx.fillText("XUỐNG MAP 2", stairsMap1.x - 5, stairsMap1.y - 10);
-
       } else {
-        // === VẼ MAP 2 ===
-        // Vẽ Tường Đỏ
-        ctx.fillStyle = '#ff1133';
-        ctx.shadowColor = '#ff0000';
-        ctx.shadowBlur = 8;
-        redWalls.forEach(w => {
-          ctx.fillRect(w.x, w.w > w.h ? w.y : w.y, w.w, w.h);
-        });
-        ctx.shadowBlur = 0;
-
-        // Cầu Thang về Map 1
-        ctx.fillStyle = '#222';
-        ctx.fillRect(stairsMap2.x, stairsMap2.y, stairsMap2.width, stairsMap2.height);
-        ctx.fillStyle = '#666';
-        for (let i = 0; i < 5; i++) {
-          ctx.fillRect(stairsMap2.x + 10, stairsMap2.y + i * 18, 70, 8);
+        if (imgMap2.complete) {
+          ctx.drawImage(imgMap2, 0, 0, canvas.width, canvas.height);
+        } else {
+          ctx.fillStyle = '#111'; ctx.fillRect(0, 0, canvas.width, canvas.height);
         }
-        ctx.fillStyle = '#fff';
-        ctx.font = '12px monospace';
-        ctx.fillText("LÊN MAP 1", stairsMap2.x + 10, stairsMap2.y - 10);
 
-        // Chìa Khóa Vàng
+        // Vẽ Chìa Khóa Vàng (Map 2)
         if (!keyItem.collected) {
           ctx.beginPath();
           ctx.arc(keyItem.x, keyItem.y, keyItem.radius, 0, Math.PI * 2);
@@ -532,16 +489,16 @@
           ctx.shadowBlur = 0;
         }
 
-        // Quái Vật (Chỉ có ở Map 2)
+        // Vẽ Quái Vật Đỏ (Map 2)
         ctx.beginPath();
         ctx.arc(npc.x, npc.y, npc.radius, 0, Math.PI * 2);
-        ctx.fillStyle = npc.state === 'CHASE' ? '#ff0000' : '#880000';
+        ctx.fillStyle = npc.state === 'CHASE' ? '#ff0000' : '#a00';
         ctx.shadowColor = '#ff0000';
         ctx.shadowBlur = npc.state === 'CHASE' ? 20 : 5;
         ctx.fill();
         ctx.shadowBlur = 0;
 
-        // Mắt quái vật
+        // Mắt Quái vật
         ctx.fillStyle = '#ffff00';
         ctx.beginPath();
         ctx.arc(npc.x - 4, npc.y - 3, 2, 0, Math.PI * 2);
@@ -549,27 +506,20 @@
         ctx.fill();
       }
 
-      // Vẽ Player (Ở cả 2 map)
+      // Vẽ Nhân Vật Người Chơi (Xanh Lá)
       ctx.beginPath();
       ctx.arc(player.x, player.y, player.radius, 0, Math.PI * 2);
-      ctx.fillStyle = '#00aaff';
+      ctx.fillStyle = '#00ffcc';
       ctx.fill();
 
-      // Mắt player
-      ctx.fillStyle = '#fff';
-      ctx.beginPath();
-      ctx.arc(player.x - 3, player.y - 3, 2, 0, Math.PI * 2);
-      ctx.arc(player.x + 3, player.y - 3, 2, 0, Math.PI * 2);
-      ctx.fill();
-
-      // Hiệu ứng bóng tối vòng tròn quanh Player
+      // Hiệu ứng Bóng Tối/Đèn Pin quanh Nhân Vật
       const gradient = ctx.createRadialGradient(
-        player.x, player.y, 30,
-        player.x, player.y, 180
+        player.x, player.y, 40,
+        player.x, player.y, 200
       );
       gradient.addColorStop(0, 'rgba(0, 0, 0, 0)');
-      gradient.addColorStop(0.8, 'rgba(0, 0, 0, 0.85)');
-      gradient.addColorStop(1, 'rgba(0, 0, 0, 0.98)');
+      gradient.addColorStop(0.8, 'rgba(0, 0, 0, 0.75)');
+      gradient.addColorStop(1, 'rgba(0, 0, 0, 0.95)');
       ctx.fillStyle = gradient;
       ctx.fillRect(0, 0, canvas.width, canvas.height);
     }
