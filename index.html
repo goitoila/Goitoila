@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-  <title>Trò Chơi Kinh Dị - Mê Cung Tường Đỏ</title>
+  <title>NGỤC</title>
   <style>
     * {
       margin: 0;
@@ -61,7 +61,7 @@
       left: 0;
       width: 100%;
       height: 100%;
-      background: rgba(0, 0, 0, 0.5);
+      background: rgba(0, 0, 0, 0.6);
       display: flex;
       flex-direction: column;
       justify-content: center;
@@ -72,19 +72,32 @@
     }
 
     .title {
-      font-size: 30px;
+      font-size: 48px;
       color: #ff0000;
-      text-shadow: 0 0 10px #ff0000, 0 0 25px #8b0000;
-      margin-bottom: 20px;
-      letter-spacing: 2px;
+      text-shadow: 0 0 15px #ff0000, 0 0 30px #8b0000;
+      margin-bottom: 30px;
+      letter-spacing: 5px;
+      font-weight: bold;
     }
 
     .subtitle {
       font-size: 14px;
       color: #ddd;
-      margin-bottom: 30px;
-      line-height: 1.6;
+      margin-bottom: 25px;
+      line-height: 1.8;
       text-shadow: 0 0 5px #000;
+      text-align: left;
+      background: rgba(0, 0, 0, 0.7);
+      padding: 20px;
+      border: 1px solid #8b0000;
+      border-radius: 5px;
+      max-width: 90%;
+    }
+
+    .btn-group {
+      display: flex;
+      flex-direction: column;
+      gap: 15px;
     }
 
     .btn {
@@ -99,6 +112,7 @@
       text-transform: uppercase;
       letter-spacing: 2px;
       z-index: 20;
+      min-width: 200px;
     }
 
     .btn:hover, .btn:active {
@@ -165,29 +179,38 @@
       <div id="joystick-knob"></div>
     </div>
 
-    <!-- Menu Screen -->
+    <!-- Menu Screen Gọn Gàng -->
     <div id="menuScreen" class="overlay">
-      <h1 class="title">BÓNG TỐI HUYẾT NGỤC</h1>
-      <p class="subtitle">
-        🏃 <b>Map 1:</b> Đi tới cầu thang (góc dưới phải) để xuống Map 2.<br>
-        🗝️ <b>Map 2:</b> Tìm chìa khóa vàng trong mê cung tường đỏ.<br>
-        👾 <b>Quái vật:</b> Chỉ đi được đường màu đen. Nếu bạn khuất tầm nhìn, quái sẽ đi tuần!<br>
+      <h1 class="title">NGỤC</h1>
+      <div class="btn-group">
+        <button id="startBtn" class="btn">BẮT ĐẦU CHƠI</button>
+        <button id="guideBtn" class="btn">HƯỚNG DẪN 3</button>
+      </div>
+    </div>
+
+    <!-- Màn hình Hướng Dẫn Riêng -->
+    <div id="guideScreen" class="overlay hidden">
+      <h1 class="title" style="font-size: 32px; margin-bottom: 15px;">HƯỚNG DẪN CHƠI</h1>
+      <div class="subtitle">
+        🏃 <b>Map 1:</b> Đi tới cầu thang (góc dưới phải) để xuống Map 2.<br><br>
+        🗝️ <b>Map 2:</b> Tìm chìa khóa vàng trong mê cung tường đỏ.<br><br>
+        👾 <b>Quái vật:</b> Chỉ đi được đường màu đen. Nếu bạn khuất tầm nhìn, quái sẽ đi tuần!<br><br>
         🚪 <b>Thoát:</b> Nhặt chìa khóa vàng -> Quay về Map 1 mở cửa EXIT!
-      </p>
-      <button id="startBtn" class="btn">BẮT ĐẦU CHƠI</button>
+      </div>
+      <button id="closeGuideBtn" class="btn">ĐÓNG</button>
     </div>
 
     <!-- Game Over Screen -->
     <div id="gameOverScreen" class="overlay hidden">
-      <h1 class="title">BẠN ĐÃ BỊ BẮT!</h1>
-      <p class="subtitle">Quái vật đã tóm được bạn trong bóng tối...</p>
+      <h1 class="title" style="font-size: 36px;">BẠN ĐÃ BỊ BẮT!</h1>
+      <p style="color: #ddd; margin-bottom: 20px;">Quái vật đã tóm được bạn trong bóng tối...</p>
       <button id="restartBtn" class="btn">CHƠI LẠI</button>
     </div>
 
     <!-- Win Screen -->
     <div id="winScreen" class="overlay hidden">
-      <h1 class="title" style="color: #00ffcc;">THOÁT NẠN THÀNH CÔNG!</h1>
-      <p class="subtitle">Bạn đã tìm thấy ánh sáng hy vọng và trốn thoát thành công!</p>
+      <h1 class="title" style="color: #00ffcc; font-size: 32px;">THOÁT NẠN THÀNH CÔNG!</h1>
+      <p style="color: #ddd; margin-bottom: 20px;">Bạn đã tìm thấy ánh sáng hy vọng và trốn thoát thành công!</p>
       <button id="backToMenuBtn" class="btn">VỀ MENU</button>
     </div>
   </div>
@@ -200,10 +223,13 @@
     const winBgImg = document.getElementById('win-bg');
 
     const menuScreen = document.getElementById('menuScreen');
+    const guideScreen = document.getElementById('guideScreen');
     const gameOverScreen = document.getElementById('gameOverScreen');
     const winScreen = document.getElementById('winScreen');
     
     const startBtn = document.getElementById('startBtn');
+    const guideBtn = document.getElementById('guideBtn');
+    const closeGuideBtn = document.getElementById('closeGuideBtn');
     const restartBtn = document.getElementById('restartBtn');
     const backToMenuBtn = document.getElementById('backToMenuBtn');
     
@@ -302,10 +328,21 @@
       winBgImg.classList.add('hidden');
 
       menuScreen.classList.remove('hidden');
+      guideScreen.classList.add('hidden');
       gameOverScreen.classList.add('hidden');
       winScreen.classList.add('hidden');
       joystickZone.style.display = 'none';
       gameInfo.innerText = '';
+    }
+
+    function showGuide() {
+      menuScreen.classList.add('hidden');
+      guideScreen.classList.remove('hidden');
+    }
+
+    function hideGuide() {
+      guideScreen.classList.add('hidden');
+      menuScreen.classList.remove('hidden');
     }
 
     function initGame() {
@@ -330,6 +367,7 @@
       winBgImg.classList.add('hidden');
 
       menuScreen.classList.add('hidden');
+      guideScreen.classList.add('hidden');
       gameOverScreen.classList.add('hidden');
       winScreen.classList.add('hidden');
       joystickZone.style.display = 'block';
@@ -359,7 +397,6 @@
       return true;
     }
 
-    // Hàm tạo vị trí ngẫu nhiên an toàn trên Map 2
     function teleportPlayerToRandomMap2() {
       let valid = false;
       let rx, ry;
@@ -370,9 +407,7 @@
         rx = 50 + Math.random() * 700;
         ry = 50 + Math.random() * 500;
 
-        // Tránh va kẹt tường đỏ
         let hitWall = checkWallCollision(rx, ry, player.radius + 5);
-        // Tránh va vào cầu thang Map 2
         let inStairs = rx > stairsMap2.x && ry > stairsMap2.y;
 
         if (!hitWall && !inStairs) {
@@ -386,7 +421,6 @@
 
     function update() {
       if (gameState === 'MENU') {
-        // Cập nhật mắt nhấp nháy ở Menu
         menuEyes.forEach(eye => {
           eye.blinkTimer++;
           if (eye.blinkTimer > 150 + Math.random() * 100) {
@@ -429,7 +463,6 @@
       if (currentMap === 1) {
         gameInfo.innerText = player.hasKey ? "🗝️ ĐÃ CÓ CHÌA KHÓA! Hãy vào cửa EXIT ở góc trái!" : "📍 MAP 1: Xuống cầu thang góc dưới phải để sang Map 2";
         
-        // Từ Map 1 xuống Map 2 -> Dịch chuyển Ngẫu nhiên
         if (player.x > stairsMap1.x && player.y > stairsMap1.y) {
           currentMap = 2;
           teleportPlayerToRandomMap2();
@@ -442,7 +475,6 @@
       else if (currentMap === 2) {
         gameInfo.innerText = player.hasKey ? "🗝️ ĐÃ LẤY CHÌA KHÓA! Quay về Map 1!" : "📍 MAP 2: Tìm chìa khóa vàng & Tránh xa quái vật!";
 
-        // Chuyển sang Map 1 -> Xuất hiện ở giữa Map 1 (x: 400, y: 300)
         if (player.x > stairsMap2.x && player.y > stairsMap2.y) {
           currentMap = 1;
           player.x = 400;
@@ -508,7 +540,6 @@
       let isBlinking = eye.blinkTimer < eye.blinkDuration;
       let lidOpen = isBlinking ? Math.max(0.1, eye.blinkTimer / eye.blinkDuration) : 1;
 
-      // Viền mắt đỏ
       ctx.strokeStyle = '#ff0000';
       ctx.lineWidth = 3;
       ctx.shadowColor = '#ff0000';
@@ -519,7 +550,6 @@
       ctx.stroke();
 
       if (!isBlinking || lidOpen > 0.3) {
-        // Lòng đen & Con ngươi đỏ
         ctx.fillStyle = '#ff0000';
         ctx.beginPath();
         ctx.arc(eye.pupilOffsetX, eye.pupilOffsetY, 6 * lidOpen, 0, Math.PI * 2);
@@ -607,6 +637,8 @@
     }
 
     startBtn.addEventListener('click', initGame);
+    guideBtn.addEventListener('click', showGuide);
+    closeGuideBtn.addEventListener('click', hideGuide);
     restartBtn.addEventListener('click', initGame);
     backToMenuBtn.addEventListener('click', showMenu);
 
