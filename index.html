@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-  <title>Trò Chơi Kinh Dị - Lối Thoát Đêm Tối</title>
+  <title>Trò Chơi Kinh Dị - Kỹ Năng Quái Vật</title>
   <style>
     * {
       margin: 0;
@@ -11,7 +11,7 @@
       box-sizing: border-box;
       user-select: none;
       -webkit-user-select: none;
-      touch-action: none; /* Ngăn cuộn trang trên điện thoại */
+      touch-action: none;
     }
 
     body {
@@ -42,7 +42,6 @@
       height: 100%;
     }
 
-    /* Màn hình Menu / Game Over */
     .overlay {
       position: absolute;
       top: 0;
@@ -103,7 +102,7 @@
       display: none !important;
     }
 
-    /* Joystick Cảm Ứng Cho Điện Thoại */
+    /* Joystick Cảm Ứng */
     #joystick-zone {
       position: absolute;
       bottom: 30px;
@@ -114,7 +113,7 @@
       border: 2px solid rgba(255, 255, 255, 0.3);
       border-radius: 50%;
       z-index: 5;
-      display: none; /* Hiện lên khi chơi */
+      display: none;
     }
 
     #joystick-knob {
@@ -129,41 +128,54 @@
       transform: translate(-50%, -50%);
       box-shadow: 0 0 10px #ff0000;
     }
+
+    /* Thông báo kỹ năng quái vật */
+    #skill-warning {
+      position: absolute;
+      top: 15px;
+      width: 100%;
+      text-align: center;
+      color: #ff0000;
+      font-weight: bold;
+      font-size: 16px;
+      text-shadow: 0 0 8px #ff0000;
+      pointer-events: none;
+      z-index: 4;
+    }
   </style>
 </head>
 <body>
 
   <div id="game-container">
     <canvas id="gameCanvas" width="800" height="600"></canvas>
+    
+    <div id="skill-warning"></div>
 
-    <!-- Cần Gạt Joystick Điện Thoại -->
     <div id="joystick-zone">
       <div id="joystick-knob"></div>
     </div>
 
-    <!-- Màn hình Menu Đầu Game -->
     <div id="menuScreen" class="overlay">
       <h1 class="title">BÓNG TỐI ĐÁY SÂU</h1>
       <p class="subtitle">
-        PC: Phím <b>WASD</b> / <b>Mũi tên</b><br>
-        Điện thoại: Dùng <b>Cần gạt ảo</b> ở góc trái<br><br>
-        Nhặt <b>Chìa khóa vàng</b> và chạy đến <b>Cửa thoát màu xanh</b>.<br>
-        Tránh xa <b>Thực thể bóng đêm</b> đang săn đuổi bạn!
+        PC: <b>WASD</b> / <b>Mũi tên</b> | Mobile: <b>Joystick</b><br><br>
+        ⚠️ <b>CẢNH BÁO KỸ NĂNG QUÁI VẬT:</b><br>
+        1. <b>Ẩn thân:</b> Tàng hình, chỉ còn đôi mắt đỏ.<br>
+        2. <b>Huyết ngục:</b> Hóa đỏ toàn bộ không gian & biến dị!<br><br>
+        Nhặt <b>Chìa khóa</b> và chạy tới <b>Cửa thoát</b> để sống sót.
       </p>
       <button id="startBtn" class="btn">BẮT ĐẦU CHƠI</button>
     </div>
 
-    <!-- Màn hình Game Over -->
     <div id="gameOverScreen" class="overlay hidden">
       <h1 class="title" style="color: #ff0000;">BẠN ĐÃ CHẾT!</h1>
-      <p class="subtitle">Con quái vật đã bắt được bạn trong bóng tối...</p>
+      <p class="subtitle">Quái vật đã bắt được bạn trong bóng tối...</p>
       <button id="restartBtn" class="btn">THỬ LẠI</button>
     </div>
 
-    <!-- Màn hình Chiến thắng -->
     <div id="winScreen" class="overlay hidden">
       <h1 class="title" style="color: #00ffcc;">THOÁT NẠN!</h1>
-      <p class="subtitle">Bạn đã tìm thấy chìa khóa và thoát khỏi cơn ác mộng thành công.</p>
+      <p class="subtitle">Bạn đã sống sót qua cơn ác mộng!</p>
       <button id="winRestartBtn" class="btn">CHƠI LẠI</button>
     </div>
   </div>
@@ -180,41 +192,37 @@
     const winRestartBtn = document.getElementById('winRestartBtn');
     const joystickZone = document.getElementById('joystick-zone');
     const joystickKnob = document.getElementById('joystick-knob');
+    const skillWarning = document.getElementById('skill-warning');
 
-    // Trạng thái điều khiển
     const keys = {};
     let joystickVector = { x: 0, y: 0 };
 
-    // Điều khiển Bàn phím (PC)
     window.addEventListener('keydown', e => keys[e.key.toLowerCase()] = true);
     window.addEventListener('keyup', e => keys[e.key.toLowerCase()] = false);
 
-    // Xử lý Cảm ứng Joystick (Điện thoại)
+    // Joystick Touch Controls
     let joystickActive = false;
     let joystickCenter = { x: 0, y: 0 };
-    const maxRadius = 35; // Bán kính di chuyển tối đa của núm gạt
+    const maxRadius = 35;
 
     joystickZone.addEventListener('touchstart', e => {
       e.preventDefault();
       joystickActive = true;
       const rect = joystickZone.getBoundingClientRect();
-      joystickCenter = {
-        x: rect.left + rect.width / 2,
-        y: rect.top + rect.height / 2
-      };
+      joystickCenter = { x: rect.left + rect.width / 2, y: rect.top + rect.height / 2 };
       updateJoystick(e.touches[0]);
     });
 
     window.addEventListener('touchmove', e => {
-      if (!joystickActive) return;
-      updateJoystick(e.touches[0]);
+      if (joystickActive) updateJoystick(e.touches[0]);
     });
 
     window.addEventListener('touchend', e => {
-      if (!joystickActive) return;
-      joystickActive = false;
-      joystickVector = { x: 0, y: 0 };
-      joystickKnob.style.transform = `translate(-50%, -50%)`;
+      if (joystickActive) {
+        joystickActive = false;
+        joystickVector = { x: 0, y: 0 };
+        joystickKnob.style.transform = `translate(-50%, -50%)`;
+      }
     });
 
     function updateJoystick(touch) {
@@ -228,60 +236,43 @@
       }
 
       joystickKnob.style.transform = `translate(calc(-50% + ${dx}px), calc(-50% + ${dy}px))`;
-      
-      // Chuẩn hóa vector di chuyển (-1 đến 1)
-      joystickVector = {
-        x: dx / maxRadius,
-        y: dy / maxRadius
-      };
+      joystickVector = { x: dx / maxRadius, y: dy / maxRadius };
     }
 
-    // Dữ liệu Game
+    // Dynamic Variables
     let player, npc, keyItem, exitDoor, gameState;
+    let skillTimer = 0;
 
     function initGame() {
       gameState = 'PLAYING';
 
-      player = {
-        x: 100,
-        y: 100,
-        radius: 12,
-        speed: 2.8,
-        hasKey: false
-      };
-
+      player = { x: 100, y: 100, radius: 12, speed: 2.8, hasKey: false };
+      
       npc = {
         x: 700,
         y: 500,
         radius: 15,
-        speed: 1.9
+        speed: 1.9, // Tốc độ giữ nguyên không tăng
+        skillState: 'NORMAL', // 'NORMAL', 'INVISIBLE', 'RED_MODE'
+        skillDuration: 0
       };
 
-      keyItem = {
-        x: 700,
-        y: 100,
-        radius: 8,
-        collected: false
-      };
+      keyItem = { x: 700, y: 100, radius: 8, collected: false };
+      exitDoor = { x: 50, y: 500, width: 30, height: 50 };
 
-      exitDoor = {
-        x: 50,
-        y: 500,
-        width: 30,
-        height: 50
-      };
+      skillTimer = 180; // Kích hoạt kỹ năng đầu tiên sau 3 giây
 
       menuScreen.classList.add('hidden');
       gameOverScreen.classList.add('hidden');
       winScreen.classList.add('hidden');
       joystickZone.style.display = 'block';
+      skillWarning.innerText = '';
     }
 
-    // Cập nhật Logic
     function update() {
       if (gameState !== 'PLAYING') return;
 
-      // Tính toán hướng di chuyển (kết hợp Cảm ứng + Bàn phím)
+      // 1. Di chuyển Player
       let moveX = joystickVector.x;
       let moveY = joystickVector.y;
 
@@ -290,21 +281,17 @@
       if (keys['a'] || keys['arrowleft']) moveX = -1;
       if (keys['d'] || keys['arrowright']) moveX = 1;
 
-      // Chuẩn hóa vận tốc khi đi chéo
       if (moveX !== 0 && moveY !== 0 && !joystickActive) {
         moveX *= 0.7071;
         moveY *= 0.7071;
       }
 
-      // Cập nhật vị trí người chơi
       player.x += moveX * player.speed;
       player.y += moveY * player.speed;
-
-      // Giới hạn trong khung màn hình
       player.x = Math.max(player.radius, Math.min(canvas.width - player.radius, player.x));
       player.y = Math.max(player.radius, Math.min(canvas.height - player.radius, player.y));
 
-      // Quái vật đuổi theo
+      // 2. Quái vật đuổi theo
       const dx = player.x - npc.x;
       const dy = player.y - npc.y;
       const distance = Math.hypot(dx, dy);
@@ -314,7 +301,33 @@
         npc.y += (dy / distance) * npc.speed;
       }
 
-      // Nhặt chìa khóa
+      // 3. Logic Kỹ năng Quái vật
+      if (npc.skillState === 'NORMAL') {
+        skillTimer--;
+        if (skillTimer <= 0) {
+          // Ngẫu nhiên chọn Kỹ năng 1 (Ẩn thân) hoặc Kỹ năng 2 (Huyết ngục)
+          const randomSkill = Math.random() < 0.5 ? 'INVISIBLE' : 'RED_MODE';
+          npc.skillState = randomSkill;
+          npc.skillDuration = 300; // Kéo dài 5 giây (60fps * 5)
+        }
+      } else {
+        npc.skillDuration--;
+        if (npc.skillDuration <= 0) {
+          npc.skillState = 'NORMAL';
+          skillTimer = 240 + Math.random() * 180; // Hồi chiêu 4-7 giây
+        }
+      }
+
+      // Cập nhật thông báo skill
+      if (npc.skillState === 'INVISIBLE') {
+        skillWarning.innerText = '⚠️ QUÁI VẬT ĐÃ ẨN THÂN THÀNH ĐÔI MẮT ĐỎ!';
+      } else if (npc.skillState === 'RED_MODE') {
+        skillWarning.innerText = '🩸 KỸ NĂNG: HUYẾT NGỤC BÓNG TỐI!';
+      } else {
+        skillWarning.innerText = '';
+      }
+
+      // 4. Va chạm & Chiến thắng
       if (!player.hasKey) {
         const distToKey = Math.hypot(player.x - keyItem.x, player.y - keyItem.y);
         if (distToKey < player.radius + keyItem.radius) {
@@ -323,34 +336,38 @@
         }
       }
 
-      // Vong mạng (Game Over)
       if (distance < player.radius + npc.radius) {
-        endGame('GAMEOVER', gameOverScreen);
+        endGame(gameOverScreen);
       }
 
-      // Chiến thắng
       if (player.hasKey &&
           player.x > exitDoor.x && player.x < exitDoor.x + exitDoor.width &&
           player.y > exitDoor.y && player.y < exitDoor.y + exitDoor.height) {
-        endGame('WIN', winScreen);
+        endGame(winScreen);
       }
     }
 
-    function endGame(state, screen) {
-      gameState = state;
+    function endGame(screen) {
+      gameState = 'ENDED';
       screen.classList.remove('hidden');
       joystickZone.style.display = 'none';
+      skillWarning.innerText = '';
     }
 
-    // Vẽ giao diện
+    // Vẽ Game
     function draw() {
-      ctx.fillStyle = '#111';
+      // Đổi nền nếu Kỹ năng 2 (Huyết ngục) đang bật
+      if (npc.skillState === 'RED_MODE') {
+        ctx.fillStyle = '#300000'; // Nền đỏ sẫm
+      } else {
+        ctx.fillStyle = '#111';
+      }
       ctx.fillRect(0, 0, canvas.width, canvas.height);
 
       if (gameState === 'MENU') return;
 
-      // Vẽ lưới nền
-      ctx.strokeStyle = '#222';
+      // Vẽ Lưới Nền
+      ctx.strokeStyle = npc.skillState === 'RED_MODE' ? '#600' : '#222';
       ctx.lineWidth = 1;
       for (let x = 0; x < canvas.width; x += 40) {
         ctx.beginPath(); ctx.moveTo(x, 0); ctx.lineTo(x, canvas.height); ctx.stroke();
@@ -374,36 +391,76 @@
         ctx.shadowBlur = 0;
       }
 
-      // Người chơi
+      // Player
       ctx.beginPath();
       ctx.arc(player.x, player.y, player.radius, 0, Math.PI * 2);
       ctx.fillStyle = '#4da6ff';
       ctx.fill();
 
-      // NPC Quái vật
-      ctx.beginPath();
-      ctx.arc(npc.x, npc.y, npc.radius, 0, Math.PI * 2);
-      ctx.fillStyle = '#cc0000';
-      ctx.shadowColor = '#ff0000';
-      ctx.shadowBlur = 15;
-      ctx.fill();
-      ctx.shadowBlur = 0;
+      // --- VẼ QUÁI VẬT TÙY THEO KỸ NĂNG ---
+      if (npc.skillState === 'INVISIBLE') {
+        // KỸ NĂNG 1: Ẩn thân - Chỉ vẽ 2 con mắt đỏ
+        ctx.fillStyle = '#ff0000';
+        ctx.shadowColor = '#ff0000';
+        ctx.shadowBlur = 12;
+        ctx.beginPath();
+        ctx.arc(npc.x - 5, npc.y, 3.5, 0, Math.PI * 2);
+        ctx.arc(npc.x + 5, npc.y, 3.5, 0, Math.PI * 2);
+        ctx.fill();
+        ctx.shadowBlur = 0;
+      } 
+      else if (npc.skillState === 'RED_MODE') {
+        // KỸ NĂNG 2: Huyết ngục - Biến quái vật thành dạng dị dịu to lớn nhiều mắt
+        ctx.beginPath();
+        ctx.arc(npc.x, npc.y, npc.radius + 6, 0, Math.PI * 2);
+        ctx.fillStyle = '#8b0000';
+        ctx.shadowColor = '#ff0000';
+        ctx.shadowBlur = 25;
+        ctx.fill();
+        ctx.shadowBlur = 0;
 
-      // Mắt quái vật
-      ctx.fillStyle = '#fff';
-      ctx.beginPath();
-      ctx.arc(npc.x - 4, npc.y - 3, 2, 0, Math.PI * 2);
-      ctx.arc(npc.x + 4, npc.y - 3, 2, 0, Math.PI * 2);
-      ctx.fill();
+        // Nhiều mắt dị dạng
+        ctx.fillStyle = '#ffff00';
+        for (let i = -8; i <= 8; i += 8) {
+          ctx.beginPath();
+          ctx.arc(npc.x + i, npc.y - 4, 3, 0, Math.PI * 2);
+          ctx.fill();
+        }
+      } 
+      else {
+        // Trạng thái bình thường
+        ctx.beginPath();
+        ctx.arc(npc.x, npc.y, npc.radius, 0, Math.PI * 2);
+        ctx.fillStyle = '#cc0000';
+        ctx.shadowColor = '#ff0000';
+        ctx.shadowBlur = 15;
+        ctx.fill();
+        ctx.shadowBlur = 0;
 
-      // Hiệu ứng Bóng tối & Đèn pin
+        ctx.fillStyle = '#fff';
+        ctx.beginPath();
+        ctx.arc(npc.x - 4, npc.y - 3, 2, 0, Math.PI * 2);
+        ctx.arc(npc.x + 4, npc.y - 3, 2, 0, Math.PI * 2);
+        ctx.fill();
+      }
+
+      // --- HIỆU ỨNG ÁNH SÁNG ĐÈN PIN & BÓNG TỐI ---
       const gradient = ctx.createRadialGradient(
         player.x, player.y, 20,
         player.x, player.y, 160
       );
-      gradient.addColorStop(0, 'rgba(0,0,0,0)');
-      gradient.addColorStop(0.75, 'rgba(0,0,0,0.85)');
-      gradient.addColorStop(1, 'rgba(0,0,0,0.98)');
+
+      if (npc.skillState === 'RED_MODE') {
+        // Vùng sáng đỏ rực rợn người trong kỹ năng Huyết ngục
+        gradient.addColorStop(0, 'rgba(255, 0, 0, 0.2)');
+        gradient.addColorStop(0.6, 'rgba(150, 0, 0, 0.85)');
+        gradient.addColorStop(1, 'rgba(60, 0, 0, 0.98)');
+      } else {
+        // Đèn pin bình thường
+        gradient.addColorStop(0, 'rgba(0,0,0,0)');
+        gradient.addColorStop(0.75, 'rgba(0,0,0,0.85)');
+        gradient.addColorStop(1, 'rgba(0,0,0,0.98)');
+      }
 
       ctx.fillStyle = gradient;
       ctx.fillRect(0, 0, canvas.width, canvas.height);
