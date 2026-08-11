@@ -376,10 +376,11 @@
       if (currentMap === 1) {
         gameInfo.innerText = player.hasKey ? "🗝️ ĐÃ CÓ CHÌA KHÓA! Hãy vào cửa EXIT ở góc trái!" : "📍 MAP 1: Xuống cầu thang góc dưới phải để sang Map 2";
         
+        // Chuyển sang Map 2 -> Đặt vị trí xuất hiện (x: 620, y: 380) để tránh va kẹt vào cầu thang lên
         if (player.x > stairsMap1.x && player.y > stairsMap1.y) {
           currentMap = 2;
-          player.x = 650;
-          player.y = 500;
+          player.x = 620;
+          player.y = 380;
         }
 
         if (player.hasKey && player.x < exitDoor.x + exitDoor.width && player.y < exitDoor.y + exitDoor.height) {
@@ -389,6 +390,7 @@
       else if (currentMap === 2) {
         gameInfo.innerText = player.hasKey ? "🗝️ ĐÃ LẤY CHÌA KHÓA! Quay về Map 1!" : "📍 MAP 2: Tìm chìa khóa vàng & Tránh xa quái vật!";
 
+        // Chuyển sang Map 1 -> Xuất hiện ở giữa Map 1 (x: 400, y: 300)
         if (player.x > stairsMap2.x && player.y > stairsMap2.y) {
           currentMap = 1;
           player.x = 400;
