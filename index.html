@@ -43,7 +43,6 @@
       height: 100%;
     }
 
-    /* Background Images for Win/Loss States */
     .bg-screen-img {
       position: absolute;
       top: 0;
@@ -123,7 +122,6 @@
 
     .hidden { display: none !important; }
 
-    /* Joystick Control */
     #joystick-zone {
       position: absolute;
       bottom: 30px;
@@ -166,8 +164,9 @@
 </head>
 <body>
 
+  <audio id="menuMusic" src="bgm.mp3" loop></audio>
+
   <div id="game-container">
-    <!-- Ảnh Kết thúc Gameover & Win -->
     <img id="gameover-bg" class="bg-screen-img hidden" src="gameover.png" alt="Game Over Background">
     <img id="win-bg" class="bg-screen-img hidden" src="win.png" alt="Win Background">
 
@@ -179,7 +178,6 @@
       <div id="joystick-knob"></div>
     </div>
 
-    <!-- Menu Screen Gọn Gàng -->
     <div id="menuScreen" class="overlay">
       <h1 class="title">NGỤC</h1>
       <div class="btn-group">
@@ -188,7 +186,6 @@
       </div>
     </div>
 
-    <!-- Màn hình Hướng Dẫn Riêng -->
     <div id="guideScreen" class="overlay hidden">
       <h1 class="title" style="font-size: 32px; margin-bottom: 15px;">HƯỚNG DẪN CHƠI</h1>
       <div class="subtitle">
@@ -200,14 +197,12 @@
       <button id="closeGuideBtn" class="btn">ĐÓNG</button>
     </div>
 
-    <!-- Game Over Screen -->
     <div id="gameOverScreen" class="overlay hidden">
       <h1 class="title" style="font-size: 36px;">BẠN ĐÃ BỊ BẮT!</h1>
       <p style="color: #ddd; margin-bottom: 20px;">Quái vật đã tóm được bạn trong bóng tối...</p>
       <button id="restartBtn" class="btn">CHƠI LẠI</button>
     </div>
 
-    <!-- Win Screen -->
     <div id="winScreen" class="overlay hidden">
       <h1 class="title" style="color: #00ffcc; font-size: 32px;">THOÁT NẠN THÀNH CÔNG!</h1>
       <p style="color: #ddd; margin-bottom: 20px;">Bạn đã tìm thấy ánh sáng hy vọng và trốn thoát thành công!</p>
@@ -218,6 +213,8 @@
   <script>
     const canvas = document.getElementById('gameCanvas');
     const ctx = canvas.getContext('2d');
+
+    const menuMusic = document.getElementById('menuMusic');
 
     const gameOverBgImg = document.getElementById('gameover-bg');
     const winBgImg = document.getElementById('win-bg');
@@ -237,14 +234,12 @@
     const joystickKnob = document.getElementById('joystick-knob');
     const gameInfo = document.getElementById('game-info');
 
-    // Nạp ảnh Map 1 và Map 2 từ GitHub
     const imgMap1 = new Image();
     imgMap1.src = 'map1.png';
 
     const imgMap2 = new Image();
     imgMap2.src = 'map2.png';
 
-    // Định vị Tường Đỏ ở Map 2
     const redWallsMap2 = [
       { x: 50,  y: 80,  w: 220, h: 30 },
       { x: 100, y: 160, w: 180, h: 30 },
@@ -261,7 +256,6 @@
       { x: 520, y: 350, w: 280, h: 30 }
     ];
 
-    // Tạo hiệu ứng mắt đỏ nhấp nháy cho Menu
     const menuEyes = [];
     for (let i = 0; i < 25; i++) {
       menuEyes.push({
@@ -281,6 +275,15 @@
 
     window.addEventListener('keydown', e => keys[e.key.toLowerCase()] = true);
     window.addEventListener('keyup', e => keys[e.key.toLowerCase()] = false);
+
+    // Kích hoạt phát nhạc khi người dùng tương tác lần đầu với trang web
+    function playMenuMusic() {
+      if (menuMusic.paused && gameState === 'MENU') {
+        menuMusic.play().catch(() => {});
+      }
+    }
+    window.addEventListener('click', playMenuMusic);
+    window.addEventListener('touchstart', playMenuMusic);
 
     let joystickActive = false;
     let joystickCenter = { x: 0, y: 0 };
@@ -322,8 +325,15 @@
 
     let player, npc, keyItem, exitDoor, stairsMap1, stairsMap2, gameState, currentMap;
 
+    function stopMenuMusic() {
+      menuMusic.pause();
+      menuMusic.currentTime = 0;
+    }
+
     function showMenu() {
       gameState = 'MENU';
+      playMenuMusic();
+
       gameOverBgImg.classList.add('hidden');
       winBgImg.classList.add('hidden');
 
@@ -347,6 +357,8 @@
 
     function initGame() {
       gameState = 'PLAYING';
+      stopMenuMusic(); // Dừng nhạc menu khi bắt đầu chơi
+
       currentMap = 1;
 
       player = { x: 200, y: 300, radius: 12, speed: 2.8, hasKey: false };
