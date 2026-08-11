@@ -43,7 +43,7 @@
       height: 100%;
     }
 
-    /* Background Images for States */
+    /* Background Images for Win/Loss States */
     .bg-screen-img {
       position: absolute;
       top: 0;
@@ -153,8 +153,7 @@
 <body>
 
   <div id="game-container">
-    <!-- Nền các màn hình -->
-    <img id="menu-eyes-bg" class="bg-screen-img" src="mat-do.png" alt="Menu Background">
+    <!-- Ảnh Kết thúc Gameover & Win -->
     <img id="gameover-bg" class="bg-screen-img hidden" src="gameover.png" alt="Game Over Background">
     <img id="win-bg" class="bg-screen-img hidden" src="win.png" alt="Win Background">
 
@@ -197,7 +196,6 @@
     const canvas = document.getElementById('gameCanvas');
     const ctx = canvas.getContext('2d');
 
-    const menuBgImg = document.getElementById('menu-eyes-bg');
     const gameOverBgImg = document.getElementById('gameover-bg');
     const winBgImg = document.getElementById('win-bg');
 
@@ -236,6 +234,21 @@
       { x: 490, y: 410, w: 30,  h: 110 },
       { x: 520, y: 350, w: 280, h: 30 }
     ];
+
+    // Tạo hiệu ứng mắt đỏ nhấp nháy cho Menu
+    const menuEyes = [];
+    for (let i = 0; i < 25; i++) {
+      menuEyes.push({
+        x: Math.random() * 760 + 20,
+        y: Math.random() * 560 + 20,
+        scale: Math.random() * 0.8 + 0.6,
+        blinkTimer: Math.random() * 100,
+        blinkDuration: 15 + Math.random() * 20,
+        pupilOffsetX: 0,
+        pupilOffsetY: 0,
+        lookTimer: Math.random() * 50
+      });
+    }
 
     const keys = {};
     let joystickVector = { x: 0, y: 0 };
@@ -285,7 +298,6 @@
 
     function showMenu() {
       gameState = 'MENU';
-      menuBgImg.classList.remove('hidden');
       gameOverBgImg.classList.add('hidden');
       winBgImg.classList.add('hidden');
 
@@ -314,7 +326,6 @@
         patrolTimer: 0
       };
 
-      menuBgImg.classList.add('hidden');
       gameOverBgImg.classList.add('hidden');
       winBgImg.classList.add('hidden');
 
@@ -348,7 +359,49 @@
       return true;
     }
 
+    // Hàm tạo vị trí ngẫu nhiên an toàn trên Map 2
+    function teleportPlayerToRandomMap2() {
+      let valid = false;
+      let rx, ry;
+      let attempts = 0;
+
+      while (!valid && attempts < 200) {
+        attempts++;
+        rx = 50 + Math.random() * 700;
+        ry = 50 + Math.random() * 500;
+
+        // Tránh va kẹt tường đỏ
+        let hitWall = checkWallCollision(rx, ry, player.radius + 5);
+        // Tránh va vào cầu thang Map 2
+        let inStairs = rx > stairsMap2.x && ry > stairsMap2.y;
+
+        if (!hitWall && !inStairs) {
+          valid = true;
+        }
+      }
+
+      player.x = rx;
+      player.y = ry;
+    }
+
     function update() {
+      if (gameState === 'MENU') {
+        // Cập nhật mắt nhấp nháy ở Menu
+        menuEyes.forEach(eye => {
+          eye.blinkTimer++;
+          if (eye.blinkTimer > 150 + Math.random() * 100) {
+            eye.blinkTimer = 0;
+          }
+          eye.lookTimer++;
+          if (eye.lookTimer > 80) {
+            eye.pupilOffsetX = (Math.random() - 0.5) * 8;
+            eye.pupilOffsetY = (Math.random() - 0.5) * 4;
+            eye.lookTimer = 0;
+          }
+        });
+        return;
+      }
+
       if (gameState !== 'PLAYING') return;
 
       let moveX = joystickVector.x;
@@ -376,11 +429,10 @@
       if (currentMap === 1) {
         gameInfo.innerText = player.hasKey ? "🗝️ ĐÃ CÓ CHÌA KHÓA! Hãy vào cửa EXIT ở góc trái!" : "📍 MAP 1: Xuống cầu thang góc dưới phải để sang Map 2";
         
-        // Chuyển sang Map 2 -> Đặt vị trí xuất hiện (x: 620, y: 380) để tránh va kẹt vào cầu thang lên
+        // Từ Map 1 xuống Map 2 -> Dịch chuyển Ngẫu nhiên
         if (player.x > stairsMap1.x && player.y > stairsMap1.y) {
           currentMap = 2;
-          player.x = 620;
-          player.y = 380;
+          teleportPlayerToRandomMap2();
         }
 
         if (player.hasKey && player.x < exitDoor.x + exitDoor.width && player.y < exitDoor.y + exitDoor.height) {
@@ -448,8 +500,51 @@
       gameInfo.innerText = '';
     }
 
+    function drawEye(eye) {
+      ctx.save();
+      ctx.translate(eye.x, eye.y);
+      ctx.scale(eye.scale, eye.scale);
+
+      let isBlinking = eye.blinkTimer < eye.blinkDuration;
+      let lidOpen = isBlinking ? Math.max(0.1, eye.blinkTimer / eye.blinkDuration) : 1;
+
+      // Viền mắt đỏ
+      ctx.strokeStyle = '#ff0000';
+      ctx.lineWidth = 3;
+      ctx.shadowColor = '#ff0000';
+      ctx.shadowBlur = 10;
+
+      ctx.beginPath();
+      ctx.ellipse(0, 0, 25, 12 * lidOpen, 0, 0, Math.PI * 2);
+      ctx.stroke();
+
+      if (!isBlinking || lidOpen > 0.3) {
+        // Lòng đen & Con ngươi đỏ
+        ctx.fillStyle = '#ff0000';
+        ctx.beginPath();
+        ctx.arc(eye.pupilOffsetX, eye.pupilOffsetY, 6 * lidOpen, 0, Math.PI * 2);
+        ctx.fill();
+
+        ctx.fillStyle = '#000000';
+        ctx.beginPath();
+        ctx.arc(eye.pupilOffsetX, eye.pupilOffsetY, 2.5 * lidOpen, 0, Math.PI * 2);
+        ctx.fill();
+      }
+
+      ctx.restore();
+    }
+
     function draw() {
-      if (gameState === 'MENU' || gameState === 'ENDED') return;
+      ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+      if (gameState === 'MENU') {
+        ctx.fillStyle = '#050000';
+        ctx.fillRect(0, 0, canvas.width, canvas.height);
+        menuEyes.forEach(eye => drawEye(eye));
+        return;
+      }
+
+      if (gameState === 'ENDED') return;
 
       if (currentMap === 1) {
         if (imgMap1.complete) {
