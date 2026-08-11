@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-  <title>Trò Chơi Kinh Dị - Bóng Tối Hóa Đỏ</title>
+  <title>Trò Chơi do sigma boy làm</title>
   <style>
     * {
       margin: 0;
@@ -170,15 +170,15 @@
 
     <!-- Game Over Screen -->
     <div id="gameOverScreen" class="overlay hidden">
-      <h1 class="title" style="color: #ff0000;">BẠN ĐÃ CHẾT!</h1>
-      <p class="subtitle">Quái vật đã bắt được bạn trong bóng tối...</p>
+      <h1 class="title" style="color: #ff0000;">NGU!</h1>
+      <p class="subtitle">Quái vật sẽ dí bạn trong bóng tối....</p>
       <button id="restartBtn" class="btn">THỬ LẠI</button>
     </div>
 
     <!-- Win Screen -->
     <div id="winScreen" class="overlay hidden">
-      <h1 class="title" style="color: #00ffcc;">THOÁT NẠN!</h1>
-      <p class="subtitle">Bạn đã sống sót thành công!</p>
+      <h1 class="title" style="color: #00ffcc;">Tày rồi cu!</h1>
+      <p class="subtitle">Bạn đã ko bị dí!</p>
       <button id="winRestartBtn" class="btn">CHƠI LẠI</button>
     </div>
   </div>
@@ -199,8 +199,8 @@
 
     // Nạp ảnh mắt đỏ từ tệp cục bộ
     const menuBgImage = new Image();
-    let isImageLoaded = false;
-    menuBgImage.src = 'mat-do.png'; // Đường dẫn đến tệp ảnh của bạn
+    let menuBgImage.src = 'https://i.imgur.com/YOUR_IMAGE_ID.png'; // Thay link ảnh của bạn vào đây
+; // Đường dẫn đến tệp ảnh của bạn
 
     menuBgImage.onload = function() {
       isImageLoaded = true;
