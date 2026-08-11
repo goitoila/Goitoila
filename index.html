@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-  <title>NGỤC - TV Version</title>
+  <title>NGỤC - 5 MAPS TV</title>
   <style>
     * {
       margin: 0;
@@ -80,17 +80,17 @@
     }
 
     .subtitle {
-      font-size: 14px;
+      font-size: 13px;
       color: #ddd;
-      margin-bottom: 25px;
-      line-height: 1.8;
+      margin-bottom: 20px;
+      line-height: 1.6;
       text-shadow: 0 0 5px #000;
       text-align: left;
-      background: rgba(0, 0, 0, 0.7);
-      padding: 20px;
+      background: rgba(0, 0, 0, 0.85);
+      padding: 15px;
       border: 1px solid #8b0000;
       border-radius: 5px;
-      max-width: 90%;
+      max-width: 95%;
     }
 
     .btn-group {
@@ -111,7 +111,7 @@
       text-transform: uppercase;
       letter-spacing: 2px;
       z-index: 20;
-      min-width: 260px;
+      min-width: 220px;
     }
 
     .btn:hover, .btn:active {
@@ -150,12 +150,12 @@
 
     #game-info {
       position: absolute;
-      top: 15px;
+      top: 10px;
       width: 100%;
       text-align: center;
       color: #ff0000;
       font-weight: bold;
-      font-size: 15px;
+      font-size: 14px;
       text-shadow: 0 0 8px #ff0000;
       pointer-events: none;
       z-index: 16;
@@ -184,38 +184,39 @@
     <div id="menuScreen" class="overlay">
       <h1 class="title">NGỤC</h1>
       <div class="btn-group">
-        <button id="startBtn" class="btn">BẮT ĐẦU CHƠI (ẤN PHÍM 2)</button>
-        <button id="guideBtn" class="btn">HƯỚNG DẪN (ẤN PHÍM 3)</button>
+        <button id="startBtn" class="btn">BẮT ĐẦU CHƠI</button>
+        <button id="guideBtn" class="btn">HƯỚNG DẪN</button>
       </div>
     </div>
 
     <!-- Màn hình HƯỚNG DẪN -->
     <div id="guideScreen" class="overlay hidden">
-      <h1 class="title" style="font-size: 32px; margin-bottom: 15px;">HƯỚNG DẪN CHƠI</h1>
+      <h1 class="title" style="font-size: 28px; margin-bottom: 10px;">HƯỚNG DẪN CHƠI</h1>
       <div class="subtitle">
-        📺 <b>Điều khiển TV / Remote:</b><br>
+        📺 <b>Điều khiển TV / Remote / Bàn Phím:</b><br>
         - Phím <b>[2]</b>: Vào chơi / Chơi lại<br>
         - Phím <b>[3]</b>: Đóng / Mở Hướng dẫn<br>
-        - Phím <b>[▲ ▼ ◄ ►]</b>: Di chuyển nhân vật<br><br>
-        🏃 <b>Map 1:</b> Chạy xuống cầu thang (góc dưới phải) để sang Map 2.<br>
-        🗝️ <b>Map 2:</b> Tìm chìa khóa vàng trong mê cung tường đỏ.<br>
-        ☠️ <b>CẢNH BÁO:</b> Lấy chìa khóa xong sương mù hóa đỏ, quái vật sẽ <b>LUÔN LUÔN ĐUỔI THEO BẠN</b>. Chạy ngay về Map 1 tới cửa EXIT trước khi nhạc kết thúc!
+        - Phím <b>[▲ ▼ ◄ ►] / WASD</b>: Di chuyển<br><br>
+        🗺️ <b>Nhiệm vụ 5 Map:</b><br>
+        - Đi tìm <b>4 MẢNH CHÌA KHÓA</b> ở Map 2, Map 3, Map 4, Map 5.<br>
+        - Mỗi Map có cấu trúc phòng thông nhau & 1 loài Quái vật nguy hiểm (Map càng cao quái chạy càng nhanh!).<br>
+        ☠️ <b>CẢNH BÁO:</b> Thu thập đủ 4 mảnh, nhạc đếm ngược nổi lên, Sương Mù Đỏ bao phủ & Tất cả Quái Vật sẽ săn tìm bạn! Chạy khẩn cấp về <b>Map 1</b> để mở EXIT!
       </div>
-      <button id="closeGuideBtn" class="btn">ĐÓNG (ẤN PHÍM 3)</button>
+      <button id="closeGuideBtn" class="btn">ĐÓNG</button>
     </div>
 
     <!-- Game Over Screen -->
     <div id="gameOverScreen" class="overlay hidden">
       <h1 class="title" style="font-size: 36px;">BẠN ĐÃ CHẾT!</h1>
-      <p id="gameOverText" style="color: #ddd; margin-bottom: 20px;">Ác quỷ đã nuốt chửng bạn...</p>
-      <button id="restartBtn" class="btn">CHƠI LẠI (ẤN PHÍM 2)</button>
+      <p id="gameOverText" style="color: #ddd; margin-bottom: 20px;">Ác quỷ đã nuốt chửng bạn trong bóng tối...</p>
+      <button id="restartBtn" class="btn">CHƠI LẠI</button>
     </div>
 
     <!-- Win Screen -->
     <div id="winScreen" class="overlay hidden">
       <h1 class="title" style="color: #00ffcc; font-size: 32px;">THOÁT NẠN THÀNH CÔNG!</h1>
-      <p style="color: #ddd; margin-bottom: 20px;">Bạn đã trốn thoát thành công khỏi ác quỷ bóng tối!</p>
-      <button id="backToMenuBtn" class="btn">VỀ MENU (ẤN PHÍM 2)</button>
+      <p style="color: #ddd; margin-bottom: 20px;">Bạn đã thu thập đủ 4 mảnh chìa khóa và trốn thoát!</p>
+      <button id="backToMenuBtn" class="btn">VỀ MENU</button>
     </div>
   </div>
 
@@ -245,63 +246,66 @@
     const joystickKnob = document.getElementById('joystick-knob');
     const gameInfo = document.getElementById('game-info');
 
-    const imgMap1 = new Image();
-    imgMap1.src = 'map1.png';
+    // MÃ NGUỒN TƯỜNG CHO 5 MAP KHÁC NHAU ĐA DẠNG
+    const mapWalls = {
+      1: [ // Map 1: Sảnh chính
+        { x: 300, y: 150, w: 200, h: 30 },
+        { x: 200, y: 350, w: 400, h: 30 }
+      ],
+      2: [ // Map 2: Mê cung hẹp
+        { x: 50,  y: 80,  w: 220, h: 30 }, { x: 100, y: 160, w: 180, h: 30 },
+        { x: 250, y: 160, w: 30,  h: 180 }, { x: 80,  y: 330, w: 200, h: 30 },
+        { x: 360, y: 80,  w: 30,  h: 270 }, { x: 450, y: 80,  w: 30,  h: 170 },
+        { x: 450, y: 220, w: 250, h: 30 }, { x: 600, y: 20,  w: 30,  h: 230 },
+        { x: 100, y: 410, w: 40,  h: 180 }, { x: 240, y: 450, w: 260, h: 30 },
+        { x: 520, y: 350, w: 280, h: 30 }
+      ],
+      3: [ // Map 3: 6 Căn phòng nối liền thông nhau
+        { x: 0,   y: 280, w: 320, h: 30 }, { x: 480, y: 280, w: 320, h: 30 },
+        { x: 260, y: 0,   w: 30,  h: 200 }, { x: 260, y: 380, w: 30,  h: 220 },
+        { x: 530, y: 0,   w: 30,  h: 200 }, { x: 530, y: 380, w: 30,  h: 220 }
+      ],
+      4: [ // Map 4: Hành lang Ziczac song song
+        { x: 100, y: 100, w: 700, h: 30 },
+        { x: 0,   y: 220, w: 700, h: 30 },
+        { x: 100, y: 340, w: 700, h: 30 },
+        { x: 0,   y: 460, w: 700, h: 30 }
+      ],
+      5: [ // Map 5: Căn phòng ma quái lớn & chướng ngại phức tạp
+        { x: 150, y: 80,  w: 500, h: 30 }, { x: 150, y: 80,  w: 30,  h: 440 },
+        { x: 620, y: 80,  w: 30,  h: 440 }, { x: 150, y: 490, w: 500, h: 30 },
+        { x: 300, y: 200, w: 200, h: 200 }
+      ]
+    };
 
-    const imgMap2 = new Image();
-    imgMap2.src = 'map2.png';
-
-    const redWallsMap2 = [
-      { x: 50,  y: 80,  w: 220, h: 30 },
-      { x: 100, y: 160, w: 180, h: 30 },
-      { x: 250, y: 160, w: 30,  h: 180 },
-      { x: 80,  y: 330, w: 200, h: 30 },
-      { x: 360, y: 80,  w: 30,  h: 270 },
-      { x: 450, y: 80,  w: 30,  h: 170 },
-      { x: 450, y: 220, w: 250, h: 30 },
-      { x: 600, y: 20,  w: 30,  h: 230 },
-      { x: 100, y: 410, w: 40,  h: 180 },
-      { x: 240, y: 450, w: 260, h: 30 },
-      { x: 350, y: 480, w: 30,  h: 90 },
-      { x: 490, y: 410, w: 30,  h: 110 },
-      { x: 520, y: 350, w: 280, h: 30 }
-    ];
-
+    // MẮT TRANG TRÍ MENU
     const menuEyes = [];
     for (let i = 0; i < 30; i++) {
       menuEyes.push({
-        x: Math.random() * 760 + 20,
-        y: Math.random() * 560 + 20,
-        scale: Math.random() * 0.8 + 0.6,
-        blinkTimer: Math.random() * 100,
-        blinkDuration: 15 + Math.random() * 20,
-        pupilOffsetX: 0,
-        pupilOffsetY: 0,
-        lookTimer: Math.random() * 50,
-        opacity: Math.random(),
-        fadeSpeed: (Math.random() * 0.03) + 0.01,
-        fadeIn: Math.random() > 0.5,
-        redGlow: Math.random() * 15 + 5
+        x: Math.random() * 760 + 20, y: Math.random() * 560 + 20,
+        scale: Math.random() * 0.8 + 0.6, blinkTimer: Math.random() * 100,
+        blinkDuration: 15 + Math.random() * 20, pupilOffsetX: 0, pupilOffsetY: 0,
+        lookTimer: Math.random() * 50, opacity: Math.random(),
+        fadeSpeed: (Math.random() * 0.03) + 0.01, fadeIn: Math.random() > 0.5, redGlow: Math.random() * 15 + 5
       });
     }
 
     const keys = {};
     let joystickVector = { x: 0, y: 0 };
 
-    // --- LẮP BỘ BẮT PHÍM ĐIỀU KHIỂN TV & BÀN PHÍM ---
+    // LẮP BỘ BẮT PHÍM ĐIỀU KHIỂN REMOTE TV & BÀN PHÍM
     window.addEventListener('keydown', e => {
       const key = e.key.toLowerCase();
       const code = e.keyCode;
 
       keys[key] = true;
 
-      // Xử lý nút LÊN/XUỐNG/TRÁI/PHẢI chuẩn TV D-Pad (KeyCodes: 37, 38, 39, 40)
       if (code === 38 || key === 'arrowup') keys['arrowup'] = true;
       if (code === 40 || key === 'arrowdown') keys['arrowdown'] = true;
       if (code === 37 || key === 'arrowleft') keys['arrowleft'] = true;
       if (code === 39 || key === 'arrowright') keys['arrowright'] = true;
 
-      // NÚT PHÍM 2 (HOẶC NÚT ĐỎ REMOTE): BẮT ĐẦU CHƠI / CHƠI LẠI
+      // Phím 2: CHƠI / CHƠI LẠI
       if (key === '2' || key === 'digit2' || code === 50) {
         if (gameState === 'MENU') {
           initGame();
@@ -314,31 +318,23 @@
         }
       }
 
-      // NÚT PHÍM 3 (HOẶC NÚT XANH LÁ REMOTE): MỞ/ĐÓNG HƯỚNG DẪN
+      // Phím 3: HƯỚNG DẪN
       if (key === '3' || key === 'digit3' || code === 51) {
         if (gameState === 'MENU') {
-          if (guideScreen.classList.contains('hidden')) {
-            showGuide();
-          } else {
-            hideGuide();
-          }
+          if (guideScreen.classList.contains('hidden')) showGuide();
+          else hideGuide();
         }
       }
 
-      // Nút Backspace hoặc Escape để quay lại Menu khi Thắng/Thua
       if (code === 27 || code === 8 || key === 'backspace' || key === 'escape') {
-        if (gameState === 'ENDED' || !guideScreen.classList.contains('hidden')) {
-          showMenu();
-        }
+        if (gameState === 'ENDED' || !guideScreen.classList.contains('hidden')) showMenu();
       }
     });
 
     window.addEventListener('keyup', e => {
       const key = e.key.toLowerCase();
       const code = e.keyCode;
-
       keys[key] = false;
-
       if (code === 38 || key === 'arrowup') keys['arrowup'] = false;
       if (code === 40 || key === 'arrowdown') keys['arrowdown'] = false;
       if (code === 37 || key === 'arrowleft') keys['arrowleft'] = false;
@@ -351,7 +347,7 @@
           window.removeEventListener('click', tryPlayMenuMusic);
           window.removeEventListener('touchstart', tryPlayMenuMusic);
           window.removeEventListener('keydown', tryPlayMenuMusic);
-        }).catch(err => console.log("Trình duyệt chặn autoplay:", err));
+        }).catch(err => console.log(err));
       }
     }
 
@@ -360,14 +356,13 @@
     window.addEventListener('keydown', tryPlayMenuMusic);
 
     chaseMusic.onended = function() {
-      if (gameState === 'PLAYING' && player.hasKey) {
-        gameOverText.innerText = "HẾT THỜI GIAN! Bạn chưa kịp thoát khỏi cánh cửa...";
+      if (gameState === 'PLAYING' && allKeysCollected()) {
+        gameOverText.innerText = "HẾT THỜI GIAN! Bản nhạc kết thúc và quái vật đã xé xác bạn...";
         endGame(gameOverScreen, gameOverBgImg);
       }
     };
 
-    let joystickActive = false;
-    let joystickCenter = { x: 0, y: 0 };
+    let joystickActive = false, joystickCenter = { x: 0, y: 0 };
     const maxRadius = 35;
 
     joystickZone.addEventListener('touchstart', e => {
@@ -378,163 +373,141 @@
       updateJoystick(e.touches[0]);
     });
 
-    window.addEventListener('touchmove', e => {
-      if (joystickActive) updateJoystick(e.touches[0]);
-    });
-
+    window.addEventListener('touchmove', e => { if (joystickActive) updateJoystick(e.touches[0]); });
     window.addEventListener('touchend', e => {
       if (joystickActive) {
-        joystickActive = false;
-        joystickVector = { x: 0, y: 0 };
+        joystickActive = false; joystickVector = { x: 0, y: 0 };
         joystickKnob.style.transform = `translate(-50%, -50%)`;
       }
     });
 
     function updateJoystick(touch) {
-      let dx = touch.clientX - joystickCenter.x;
-      let dy = touch.clientY - joystickCenter.y;
+      let dx = touch.clientX - joystickCenter.x, dy = touch.clientY - joystickCenter.y;
       let distance = Math.hypot(dx, dy);
-
       if (distance > maxRadius) {
-        dx = (dx / distance) * maxRadius;
-        dy = (dy / distance) * maxRadius;
+        dx = (dx / distance) * maxRadius; dy = (dy / distance) * maxRadius;
       }
-
       joystickKnob.style.transform = `translate(calc(-50% + ${dx}px), calc(-50% + ${dy}px))`;
       joystickVector = { x: dx / maxRadius, y: dy / maxRadius };
     }
 
-    let player, npc, keyItem, exitDoor, stairsMap1, stairsMap2, gameState, currentMap;
+    let player, exitDoor, gameState, currentMap;
+    let keyFragments = {}; // Lưu mảnh chìa khóa cho Map 2, 3, 4, 5
+    let monsters = {};     // Quái vật riêng cho từng Map (Map 2->5)
+
+    function allKeysCollected() {
+      return keyFragments[2].collected && keyFragments[3].collected && 
+             keyFragments[4].collected && keyFragments[5].collected;
+    }
+
+    function countCollectedKeys() {
+      let count = 0;
+      for (let m = 2; m <= 5; m++) {
+        if (keyFragments[m] && keyFragments[m].collected) count++;
+      }
+      return count;
+    }
 
     function stopAllMusic() {
-      menuMusic.pause();
-      menuMusic.currentTime = 0;
-      chaseMusic.pause();
-      chaseMusic.currentTime = 0;
+      menuMusic.pause(); menuMusic.currentTime = 0;
+      chaseMusic.pause(); chaseMusic.currentTime = 0;
     }
 
     function showMenu() {
       gameState = 'MENU';
       stopAllMusic();
       tryPlayMenuMusic();
-
-      gameOverBgImg.classList.add('hidden');
-      winBgImg.classList.add('hidden');
-
-      menuScreen.classList.remove('hidden');
-      guideScreen.classList.add('hidden');
-      gameOverScreen.classList.add('hidden');
-      winScreen.classList.add('hidden');
-      joystickZone.style.display = 'none';
-      gameInfo.innerText = '';
+      gameOverBgImg.classList.add('hidden'); winBgImg.classList.add('hidden');
+      menuScreen.classList.remove('hidden'); guideScreen.classList.add('hidden');
+      gameOverScreen.classList.add('hidden'); winScreen.classList.add('hidden');
+      joystickZone.style.display = 'none'; gameInfo.innerText = '';
     }
 
-    function showGuide() {
-      menuScreen.classList.add('hidden');
-      guideScreen.classList.remove('hidden');
-    }
-
-    function hideGuide() {
-      guideScreen.classList.add('hidden');
-      menuScreen.classList.remove('hidden');
-    }
+    function showGuide() { menuScreen.classList.add('hidden'); guideScreen.classList.remove('hidden'); }
+    function hideGuide() { guideScreen.classList.add('hidden'); menuScreen.classList.remove('hidden'); }
 
     function initGame() {
       gameState = 'PLAYING';
       stopAllMusic();
-
       currentMap = 1;
 
-      player = { x: 200, y: 300, radius: 12, speed: 2.8, hasKey: false };
+      player = { x: 400, y: 300, radius: 12, speed: 2.8 };
+      exitDoor = { x: 50, y: 50, width: 80, height: 100 };
 
-      exitDoor = { x: 80, y: 80, width: 90, height: 120 };
-      stairsMap1 = { x: 600, y: 380, width: 180, height: 200 };
-      stairsMap2 = { x: 650, y: 480, width: 120, height: 100 };
-      keyItem = { x: 150, y: 120, radius: 10, collected: false };
-
-      npc = {
-        x: 420, y: 140, radius: 14, speed: 2.1,
-        state: 'PATROL',
-        targetX: 420, targetY: 140,
-        patrolTimer: 0
+      // Khởi tạo mảnh chìa khóa trên 4 map
+      keyFragments = {
+        2: { x: 150, y: 120, radius: 10, collected: false },
+        3: { x: 680, y: 120, radius: 10, collected: false },
+        4: { x: 400, y: 520, radius: 10, collected: false },
+        5: { x: 400, y: 300, radius: 10, collected: false }
       };
 
-      gameOverBgImg.classList.add('hidden');
-      winBgImg.classList.add('hidden');
+      // Cấu hình Quái vật riêng cho từng Map (Tốc độ tăng dần theo Map)
+      monsters = {
+        2: { x: 500, y: 200, radius: 14, speed: 2.1, color: '#ff0000', name: 'Bóng Ma Đỏ' },
+        3: { x: 400, y: 100, radius: 15, speed: 2.4, color: '#00e5ff', name: 'Mắt Xanh Xám' },
+        4: { x: 650, y: 280, radius: 13, speed: 2.7, color: '#bd00ff', name: 'Bóng Đêm Tím' },
+        5: { x: 200, y: 150, radius: 16, speed: 3.1, color: '#ff7700', name: 'Huyết Quỷ Cam' }
+      };
 
-      menuScreen.classList.add('hidden');
-      guideScreen.classList.add('hidden');
-      gameOverScreen.classList.add('hidden');
-      winScreen.classList.add('hidden');
+      gameOverBgImg.classList.add('hidden'); winBgImg.classList.add('hidden');
+      menuScreen.classList.add('hidden'); guideScreen.classList.add('hidden');
+      gameOverScreen.classList.add('hidden'); winScreen.classList.add('hidden');
       joystickZone.style.display = 'block';
     }
 
-    function checkWallCollision(newX, newY, radius) {
-      if (currentMap !== 2) return false;
-      for (let wall of redWallsMap2) {
+    function checkWallCollision(newX, newY, radius, mapId) {
+      const walls = mapWalls[mapId];
+      if (!walls) return false;
+      for (let wall of walls) {
         let closestX = Math.max(wall.x, Math.min(newX, wall.x + wall.w));
         let closestY = Math.max(wall.y, Math.min(newY, wall.y + wall.h));
         let distanceX = newX - closestX;
         let distanceY = newY - closestY;
-        if ((distanceX * distanceX + distanceY * distanceY) < (radius * radius)) {
-          return true;
-        }
+        if ((distanceX * distanceX + distanceY * distanceY) < (radius * radius)) return true;
       }
       return false;
     }
 
-    function hasLineOfSight(x1, y1, x2, y2) {
-      const steps = 20;
-      for (let i = 0; i <= steps; i++) {
-        let px = x1 + (x2 - x1) * (i / steps);
-        let py = y1 + (y2 - y1) * (i / steps);
-        if (checkWallCollision(px, py, 2)) return false;
+    // CHUYỂN CỔNG GIỮA CÁC MAP
+    function checkMapTransitions() {
+      // Ở viền màn hình sẽ có các cổng thông qua map mới
+      if (currentMap === 1) {
+        if (player.x > 770) { currentMap = 2; player.x = 40; } // Qua phải -> Map 2
+        else if (player.y > 570) { currentMap = 3; player.y = 40; } // Xuống dưới -> Map 3
       }
-      return true;
-    }
-
-    function teleportPlayerToRandomMap2() {
-      let valid = false;
-      let rx, ry;
-      let attempts = 0;
-
-      while (!valid && attempts < 200) {
-        attempts++;
-        rx = 50 + Math.random() * 700;
-        ry = 50 + Math.random() * 500;
-
-        let hitWall = checkWallCollision(rx, ry, player.radius + 5);
-        let inStairs = rx > stairsMap2.x && ry > stairsMap2.y;
-
-        if (!hitWall && !inStairs) {
-          valid = true;
-        }
+      else if (currentMap === 2) {
+        if (player.x < 30) { currentMap = 1; player.x = 760; } // Trở lại Map 1
+        else if (player.y > 570) { currentMap = 4; player.y = 40; } // Xuống dưới -> Map 4
       }
-
-      player.x = rx;
-      player.y = ry;
+      else if (currentMap === 3) {
+        if (player.y < 30) { currentMap = 1; player.y = 560; } // Lên trên -> Map 1
+        else if (player.x > 770) { currentMap = 5; player.x = 40; } // Qua phải -> Map 5
+      }
+      else if (currentMap === 4) {
+        if (player.y < 30) { currentMap = 2; player.y = 560; } // Lên trên -> Map 2
+        else if (player.x > 770) { currentMap = 5; player.x = 40; } // Qua phải -> Map 5
+      }
+      else if (currentMap === 5) {
+        if (player.x < 30) { currentMap = 3; player.x = 760; } // Trở lại Map 3
+      }
     }
 
     function update() {
       if (gameState === 'MENU') {
         menuEyes.forEach(eye => {
           eye.blinkTimer++;
-          if (eye.blinkTimer > 150 + Math.random() * 100) {
-            eye.blinkTimer = 0;
-          }
+          if (eye.blinkTimer > 150 + Math.random() * 100) eye.blinkTimer = 0;
           eye.lookTimer++;
           if (eye.lookTimer > 60) {
             eye.pupilOffsetX = (Math.random() - 0.5) * 8;
             eye.pupilOffsetY = (Math.random() - 0.5) * 4;
             eye.lookTimer = 0;
           }
-
           if (eye.fadeIn) {
-            eye.opacity += eye.fadeSpeed;
-            if (eye.opacity >= 1) eye.fadeIn = false;
+            eye.opacity += eye.fadeSpeed; if (eye.opacity >= 1) eye.fadeIn = false;
           } else {
-            eye.opacity -= eye.fadeSpeed;
-            if (eye.opacity <= 0.1) eye.fadeIn = true;
+            eye.opacity -= eye.fadeSpeed; if (eye.opacity <= 0.1) eye.fadeIn = true;
           }
           eye.redGlow = 5 + Math.random() * 15;
         });
@@ -543,97 +516,75 @@
 
       if (gameState !== 'PLAYING') return;
 
-      let moveX = joystickVector.x;
-      let moveY = joystickVector.y;
-
-      // Xử lý di chuyển bằng các nút bấm LÊN XUỐNG TRÁI PHẢI TV / BÀN PHÍM
+      let moveX = joystickVector.x, moveY = joystickVector.y;
       if (keys['w'] || keys['arrowup']) moveY = -1;
       if (keys['s'] || keys['arrowdown']) moveY = 1;
       if (keys['a'] || keys['arrowleft']) moveX = -1;
       if (keys['d'] || keys['arrowright']) moveX = 1;
 
-      if (moveX !== 0 && moveY !== 0 && !joystickActive) {
-        moveX *= 0.7071; moveY *= 0.7071;
-      }
+      if (moveX !== 0 && moveY !== 0 && !joystickActive) { moveX *= 0.7071; moveY *= 0.7071; }
 
       let nextX = player.x + moveX * player.speed;
       let nextY = player.y + moveY * player.speed;
 
-      if (!checkWallCollision(nextX, player.y, player.radius)) {
+      if (!checkWallCollision(nextX, player.y, player.radius, currentMap)) {
         player.x = Math.max(player.radius, Math.min(canvas.width - player.radius, nextX));
       }
-      if (!checkWallCollision(player.x, nextY, player.radius)) {
+      if (!checkWallCollision(player.x, nextY, player.radius, currentMap)) {
         player.y = Math.max(player.radius, Math.min(canvas.height - player.radius, nextY));
       }
 
-      if (currentMap === 1) {
-        gameInfo.innerText = player.hasKey ? "⚠️ SƯƠNG MÙ ĐỎ! CHẠY NHAU VÀO CỬA EXIT GÓC TRÁI!" : "📍 MAP 1: Xuống cầu thang góc dưới phải để sang Map 2";
-        
-        if (player.x > stairsMap1.x && player.y > stairsMap1.y) {
-          currentMap = 2;
-          teleportPlayerToRandomMap2();
-        }
+      checkMapTransitions();
 
-        if (player.hasKey && player.x < exitDoor.x + exitDoor.width && player.y < exitDoor.y + exitDoor.height) {
-          endGame(winScreen, winBgImg);
-        }
-      } 
-      else if (currentMap === 2) {
-        gameInfo.innerText = player.hasKey ? "☠️ QUÁI VẬT ĐANG NHÌN THẤY BẠN! VỀ MAP 1 MAU!" : "📍 MAP 2: Tìm chìa khóa vàng & Tránh xa quái vật!";
+      // CẬP NHẬT THÔNG TIN VÀ KIỂM TRA MẢNH CHÌA KHÓA
+      let collectedCount = countCollectedKeys();
+      if (allKeysCollected()) {
+        gameInfo.innerText = `🚨 ĐÃ ĐỦ 4 MẢNH CHÌA KHÓA! CHẠY KHẨN CẤP VỀ MAP 1 MỞ CỬA EXIT!`;
+      } else {
+        gameInfo.innerText = `📍 MAP ${currentMap} | 🗝️ Mảnh chìa khóa: [${collectedCount}/4]`;
+      }
 
-        if (player.x > stairsMap2.x && player.y > stairsMap2.y) {
-          currentMap = 1;
-          player.x = 400;
-          player.y = 300;
-        }
+      // Nhặt mảnh chìa khóa nếu đang ở Map có chìa
+      if (keyFragments[currentMap] && !keyFragments[currentMap].collected) {
+        let key = keyFragments[currentMap];
+        let dist = Math.hypot(player.x - key.x, player.y - key.y);
+        if (dist < player.radius + key.radius) {
+          key.collected = true;
 
-        if (!keyItem.collected) {
-          let distKey = Math.hypot(player.x - keyItem.x, player.y - keyItem.y);
-          if (distKey < player.radius + keyItem.radius) {
-            keyItem.collected = true;
-            player.hasKey = true;
-            
+          // Nếu vừa nhặt đủ 4 mảnh chìa -> Bật nhạc Chase
+          if (allKeysCollected()) {
             chaseMusic.currentTime = 0;
             chaseMusic.play().catch(e => console.log(e));
           }
         }
+      }
 
-        if (player.hasKey) {
-          npc.state = 'CHASE';
-        } else {
-          let distToPlayer = Math.hypot(player.x - npc.x, player.y - npc.y);
-          let canSee = distToPlayer < 220 && hasLineOfSight(npc.x, npc.y, player.x, player.y);
-          if (canSee) {
-            npc.state = 'CHASE';
-          } else if (npc.state === 'CHASE') {
-            npc.state = 'PATROL';
-          }
+      // XỬ LÝ QUÁI VẬT TẠI MAP HIỆN TẠI
+      if (monsters[currentMap]) {
+        let mob = monsters[currentMap];
+        let isAllKeys = allKeysCollected();
+
+        // Nếu đã nhặt đủ 4 mảnh chìa khóa -> Tất cả Quái vật ĐẦU HÀNG ĐỔI THÀNH ĐUỔI THEO BẠN
+        let distPlayer = Math.hypot(player.x - mob.x, player.y - mob.y);
+        if (isAllKeys || distPlayer < 200) {
+          let angle = Math.atan2(player.y - mob.y, player.x - mob.x);
+          let nX = mob.x + Math.cos(angle) * mob.speed;
+          let nY = mob.y + Math.sin(angle) * mob.speed;
+          if (!checkWallCollision(nX, mob.y, mob.radius, currentMap)) mob.x = nX;
+          if (!checkWallCollision(mob.x, nY, mob.radius, currentMap)) mob.y = nY;
         }
 
-        if (npc.state === 'CHASE') {
-          let angle = Math.atan2(player.y - npc.y, player.x - npc.x);
-          let nX = npc.x + Math.cos(angle) * npc.speed;
-          let nY = npc.y + Math.sin(angle) * npc.speed;
-          if (!checkWallCollision(nX, npc.y, npc.radius)) npc.x = nX;
-          if (!checkWallCollision(npc.x, nY, npc.radius)) npc.y = nY;
-        } else {
-          npc.patrolTimer--;
-          if (npc.patrolTimer <= 0) {
-            npc.targetX = 100 + Math.random() * 600;
-            npc.targetY = 100 + Math.random() * 400;
-            npc.patrolTimer = 150 + Math.random() * 100;
-          }
-          let angle = Math.atan2(npc.targetY - npc.y, npc.targetX - npc.x);
-          let nX = npc.x + Math.cos(angle) * (npc.speed * 0.6);
-          let nY = npc.y + Math.sin(angle) * (npc.speed * 0.6);
-          if (!checkWallCollision(nX, npc.y, npc.radius)) npc.x = nX;
-          if (!checkWallCollision(npc.x, nY, npc.radius)) npc.y = nY;
-        }
-
-        let distToPlayer = Math.hypot(player.x - npc.x, player.y - npc.y);
-        if (distToPlayer < player.radius + npc.radius) {
-          gameOverText.innerText = "Bạn đã bị quái vật tóm gục!";
+        // Kiểm tra va chạm quái vật -> Chết
+        if (distPlayer < player.radius + mob.radius) {
+          gameOverText.innerText = `Bạn đã bị [${mob.name}] bắt gục tại Map ${currentMap}!`;
           endGame(gameOverScreen, gameOverBgImg);
+        }
+      }
+
+      // KIỂM TRA THẮNG GAME TẠI MAP 1
+      if (currentMap === 1 && allKeysCollected()) {
+        if (player.x < exitDoor.x + exitDoor.width && player.y < exitDoor.y + exitDoor.height) {
+          endGame(winScreen, winBgImg);
         }
       }
     }
@@ -656,10 +607,8 @@
       let isBlinking = eye.blinkTimer < eye.blinkDuration;
       let lidOpen = isBlinking ? Math.max(0.1, eye.blinkTimer / eye.blinkDuration) : 1;
 
-      ctx.strokeStyle = '#ff0000';
-      ctx.lineWidth = 3;
-      ctx.shadowColor = '#ff0000';
-      ctx.shadowBlur = eye.redGlow;
+      ctx.strokeStyle = '#ff0000'; ctx.lineWidth = 3;
+      ctx.shadowColor = '#ff0000'; ctx.shadowBlur = eye.redGlow;
 
       ctx.beginPath();
       ctx.ellipse(0, 0, 25, 12 * lidOpen, 0, 0, Math.PI * 2);
@@ -667,16 +616,10 @@
 
       if (!isBlinking || lidOpen > 0.3) {
         ctx.fillStyle = '#ff0000';
-        ctx.beginPath();
-        ctx.arc(eye.pupilOffsetX, eye.pupilOffsetY, 6 * lidOpen, 0, Math.PI * 2);
-        ctx.fill();
-
+        ctx.beginPath(); ctx.arc(eye.pupilOffsetX, eye.pupilOffsetY, 6 * lidOpen, 0, Math.PI * 2); ctx.fill();
         ctx.fillStyle = '#000000';
-        ctx.beginPath();
-        ctx.arc(eye.pupilOffsetX, eye.pupilOffsetY, 2.5 * lidOpen, 0, Math.PI * 2);
-        ctx.fill();
+        ctx.beginPath(); ctx.arc(eye.pupilOffsetX, eye.pupilOffsetY, 2.5 * lidOpen, 0, Math.PI * 2); ctx.fill();
       }
-
       ctx.restore();
     }
 
@@ -684,81 +627,68 @@
       ctx.clearRect(0, 0, canvas.width, canvas.height);
 
       if (gameState === 'MENU') {
-        ctx.fillStyle = '#050000';
-        ctx.fillRect(0, 0, canvas.width, canvas.height);
+        ctx.fillStyle = '#050000'; ctx.fillRect(0, 0, canvas.width, canvas.height);
         menuEyes.forEach(eye => drawEye(eye));
         return;
       }
 
       if (gameState === 'ENDED') return;
 
-      if (currentMap === 1) {
-        if (imgMap1.complete) {
-          ctx.drawImage(imgMap1, 0, 0, canvas.width, canvas.height);
-        } else {
-          ctx.fillStyle = '#222'; ctx.fillRect(0, 0, canvas.width, canvas.height);
-        }
-      } else {
-        if (imgMap2.complete) {
-          ctx.drawImage(imgMap2, 0, 0, canvas.width, canvas.height);
-        } else {
-          ctx.fillStyle = '#111'; ctx.fillRect(0, 0, canvas.width, canvas.height);
-        }
+      // 1. Vẽ Nền Map
+      ctx.fillStyle = '#111'; ctx.fillRect(0, 0, canvas.width, canvas.height);
 
-        if (!keyItem.collected) {
-          ctx.beginPath();
-          ctx.arc(keyItem.x, keyItem.y, keyItem.radius, 0, Math.PI * 2);
-          ctx.fillStyle = '#ffd700';
-          ctx.shadowColor = '#ffd700';
-          ctx.shadowBlur = 15;
-          ctx.fill();
-          ctx.shadowBlur = 0;
-        }
-
-        ctx.beginPath();
-        ctx.arc(npc.x, npc.y, npc.radius, 0, Math.PI * 2);
-        ctx.fillStyle = npc.state === 'CHASE' ? '#ff0000' : '#a00';
-        ctx.shadowColor = '#ff0000';
-        ctx.shadowBlur = npc.state === 'CHASE' ? 25 : 5;
-        ctx.fill();
-        ctx.shadowBlur = 0;
-
-        ctx.fillStyle = '#ffff00';
-        ctx.beginPath();
-        ctx.arc(npc.x - 4, npc.y - 3, 2, 0, Math.PI * 2);
-        ctx.arc(npc.x + 4, npc.y - 3, 2, 0, Math.PI * 2);
-        ctx.fill();
+      // 2. Vẽ Tường của Map
+      ctx.fillStyle = '#8b0000';
+      if (mapWalls[currentMap]) {
+        mapWalls[currentMap].forEach(w => {
+          ctx.fillRect(w.x, w.y, w.w, w.h);
+        });
       }
 
-      ctx.beginPath();
-      ctx.arc(player.x, player.y, player.radius, 0, Math.PI * 2);
-      ctx.fillStyle = '#00ffcc';
-      ctx.fill();
+      // 3. Nếu là Map 1 -> Vẽ Cửa Exit
+      if (currentMap === 1) {
+        ctx.fillStyle = allKeysCollected() ? '#00ffcc' : '#444';
+        ctx.fillRect(exitDoor.x, exitDoor.y, exitDoor.width, exitDoor.height);
+        ctx.fillStyle = '#fff'; ctx.font = '12px Courier New';
+        ctx.fillText('EXIT', exitDoor.x + 25, exitDoor.y + 50);
+      }
 
-      const gradient = ctx.createRadialGradient(
-        player.x, player.y, 30,
-        player.x, player.y, 220
-      );
+      // 4. Vẽ Mảnh Chìa Khóa (nếu có ở Map này)
+      if (keyFragments[currentMap] && !keyFragments[currentMap].collected) {
+        let key = keyFragments[currentMap];
+        ctx.beginPath(); ctx.arc(key.x, key.y, key.radius, 0, Math.PI * 2);
+        ctx.fillStyle = '#ffd700'; ctx.shadowColor = '#ffd700'; ctx.shadowBlur = 15;
+        ctx.fill(); ctx.shadowBlur = 0;
+      }
 
-      if (player.hasKey) {
+      // 5. Vẽ Quái vật tại Map này
+      if (monsters[currentMap]) {
+        let mob = monsters[currentMap];
+        ctx.beginPath(); ctx.arc(mob.x, mob.y, mob.radius, 0, Math.PI * 2);
+        ctx.fillStyle = mob.color; ctx.shadowColor = mob.color; ctx.shadowBlur = 15;
+        ctx.fill(); ctx.shadowBlur = 0;
+      }
+
+      // 6. Vẽ Nhân vật
+      ctx.beginPath(); ctx.arc(player.x, player.y, player.radius, 0, Math.PI * 2);
+      ctx.fillStyle = '#00ffcc'; ctx.fill();
+
+      // 7. SƯƠNG MÙ BÓNG TỐI (ĐỎ khi đã thu đủ 4 mảnh)
+      const gradient = ctx.createRadialGradient(player.x, player.y, 30, player.x, player.y, 220);
+      if (allKeysCollected()) {
         gradient.addColorStop(0, 'rgba(150, 0, 0, 0)');
         gradient.addColorStop(0.5, 'rgba(180, 0, 0, 0.45)');
-        gradient.addColorStop(0.85, 'rgba(120, 0, 0, 0.85)');
         gradient.addColorStop(1, 'rgba(50, 0, 0, 0.98)');
       } else {
         gradient.addColorStop(0, 'rgba(0, 0, 0, 0)');
         gradient.addColorStop(0.8, 'rgba(0, 0, 0, 0.75)');
         gradient.addColorStop(1, 'rgba(0, 0, 0, 0.95)');
       }
-
-      ctx.fillStyle = gradient;
-      ctx.fillRect(0, 0, canvas.width, canvas.height);
+      ctx.fillStyle = gradient; ctx.fillRect(0, 0, canvas.width, canvas.height);
     }
 
     function gameLoop() {
-      update();
-      draw();
-      requestAnimationFrame(gameLoop);
+      update(); draw(); requestAnimationFrame(gameLoop);
     }
 
     startBtn.addEventListener('click', initGame);
@@ -767,8 +697,7 @@
     restartBtn.addEventListener('click', initGame);
     backToMenuBtn.addEventListener('click', showMenu);
 
-    showMenu();
-    gameLoop();
+    showMenu(); gameLoop();
   </script>
 </body>
 </html>
