@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-  <title>Trò Chơi Kinh Dị - Mắt Đỏ Menu</title>
+  <title>Trò Chơi Kinh Dị - 2 Màn Chơi</title>
   <style>
     * {
       margin: 0;
@@ -15,7 +15,7 @@
     }
 
     body {
-      background-color: #050505;
+      background-color: #000;
       color: #fff;
       font-family: 'Courier New', Courier, monospace;
       display: flex;
@@ -32,8 +32,9 @@
       max-width: 800px;
       max-height: 600px;
       border: 2px solid #333;
-      box-shadow: 0 0 30px rgba(255, 0, 0, 0.2);
+      box-shadow: 0 0 30px rgba(255, 0, 0, 0.3);
       background-color: #050505;
+      overflow: hidden;
     }
 
     canvas {
@@ -42,13 +43,33 @@
       height: 100%;
     }
 
+    #menu-eyes-bg {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      z-index: 1;
+      background: #050505;
+      pointer-events: none;
+    }
+
+    .eye-glow {
+      animation: blinkGlow 2.5s infinite ease-in-out;
+    }
+
+    @keyframes blinkGlow {
+      0%, 100% { opacity: 0.2; filter: drop-shadow(0 0 2px #ff0000); }
+      50% { opacity: 1; filter: drop-shadow(0 0 15px #ff0000); }
+    }
+
     .overlay {
       position: absolute;
       top: 0;
       left: 0;
       width: 100%;
       height: 100%;
-      background: rgba(0, 0, 0, 0.4);
+      background: rgba(0, 0, 0, 0.65);
       display: flex;
       flex-direction: column;
       justify-content: center;
@@ -64,14 +85,13 @@
       text-shadow: 0 0 10px #ff0000, 0 0 25px #8b0000;
       margin-bottom: 20px;
       letter-spacing: 2px;
-      animation: pulse 2s infinite;
     }
 
     .subtitle {
       font-size: 14px;
       color: #ddd;
       margin-bottom: 30px;
-      line-height: 1.5;
+      line-height: 1.6;
       text-shadow: 0 0 5px #000;
     }
 
@@ -86,6 +106,7 @@
       transition: all 0.3s ease;
       text-transform: uppercase;
       letter-spacing: 2px;
+      z-index: 20;
     }
 
     .btn:hover, .btn:active {
@@ -94,16 +115,9 @@
       transform: scale(1.05);
     }
 
-    @keyframes pulse {
-      0%, 100% { opacity: 1; }
-      50% { opacity: 0.7; }
-    }
+    .hidden { display: none !important; }
 
-    .hidden {
-      display: none !important;
-    }
-
-    /* Joystick Cảm Ứng */
+    /* Joystick Controls */
     #joystick-zone {
       position: absolute;
       bottom: 30px;
@@ -113,7 +127,7 @@
       background: rgba(255, 255, 255, 0.1);
       border: 2px solid rgba(255, 255, 255, 0.3);
       border-radius: 50%;
-      z-index: 5;
+      z-index: 15;
       display: none;
     }
 
@@ -130,26 +144,43 @@
       box-shadow: 0 0 10px #ff0000;
     }
 
-    #skill-status {
+    #game-info {
       position: absolute;
       top: 15px;
       width: 100%;
       text-align: center;
       color: #ff0000;
       font-weight: bold;
-      font-size: 18px;
-      text-shadow: 0 0 8px #ff0000, 0 0 15px #8b0000;
+      font-size: 16px;
+      text-shadow: 0 0 8px #ff0000;
       pointer-events: none;
-      z-index: 6;
+      z-index: 16;
     }
   </style>
 </head>
 <body>
 
   <div id="game-container">
+    <!-- SVG Menu Mắt Đỏ -->
+    <svg id="menu-eyes-bg" viewBox="0 0 800 600" xmlns="http://www.w3.org/2000/svg">
+      <rect width="800" height="600" fill="#050505"/>
+      <g class="eye-glow" style="animation-delay: 0s;">
+        <path d="M 100 200 Q 150 160 200 200 Q 150 240 100 200 Z" fill="none" stroke="#ff0000" stroke-width="4"/>
+        <circle cx="150" cy="200" r="8" fill="#ff0000"/>
+      </g>
+      <g class="eye-glow" style="animation-delay: 0.8s;">
+        <path d="M 350 280 Q 400 230 450 280 Q 400 330 350 280 Z" fill="none" stroke="#ff0000" stroke-width="5"/>
+        <circle cx="400" cy="280" r="12" fill="#ff0000"/>
+      </g>
+      <g class="eye-glow" style="animation-delay: 1.5s;">
+        <path d="M 600 150 Q 650 120 700 150 Q 650 180 600 150 Z" fill="none" stroke="#ff0000" stroke-width="4"/>
+        <circle cx="650" cy="150" r="7" fill="#ff0000"/>
+      </g>
+    </svg>
+
     <canvas id="gameCanvas" width="800" height="600"></canvas>
     
-    <div id="skill-status"></div>
+    <div id="game-info"></div>
 
     <div id="joystick-zone">
       <div id="joystick-knob"></div>
@@ -159,25 +190,25 @@
     <div id="menuScreen" class="overlay">
       <h1 class="title">BÓNG TỐI HUYẾT NGỤC</h1>
       <p class="subtitle">
-        PC: <b>WASD</b> / <b>Mũi tên</b> | Mobile: <b>Joystick</b><br><br>
-        🩸 <b>KỸ NĂNG QUÁI VẬT:</b><br>
-        Bóng tối bao quanh sẽ bị nhuộm <b>MÀU ĐỎ RỰC</b> ngẫu nhiên!<br><br>
-        Nhặt <b>Chìa khóa</b> vàng và chạy tới <b>Cửa thoát</b>.
+        🏃 <b>Map 1:</b> Đi tới cầu thang (góc dưới phải) để xuống Map 2.<br>
+        🗝️ <b>Map 2:</b> Tìm chìa khóa vàng trong mê cung tường đỏ.<br>
+        👾 <b>Quái vật:</b> Xuất hiện ở Map 2. Nếu đi khuất tầm nhìn, quái sẽ đi tuần tra!<br>
+        🚪 <b>Thoát:</b> Cầm chìa khóa về Map 1 mở cửa EXIT phát sáng!
       </p>
       <button id="startBtn" class="btn">BẮT ĐẦU CHƠI</button>
     </div>
 
     <!-- Game Over Screen -->
     <div id="gameOverScreen" class="overlay hidden">
-      <h1 class="title" style="color: #ff0000;">BẠN ĐÃ CHẾT!</h1>
-      <p class="subtitle">Quái vật đã bắt được bạn trong bóng tối...</p>
+      <h1 class="title">BẠN ĐÃ CHẾT!</h1>
+      <p class="subtitle">Quái vật đã tóm được bạn trong mê cung...</p>
       <button id="restartBtn" class="btn">THỬ LẠI</button>
     </div>
 
     <!-- Win Screen -->
     <div id="winScreen" class="overlay hidden">
-      <h1 class="title" style="color: #00ffcc;">THOÁT NẠN!</h1>
-      <p class="subtitle">Bạn đã sống sót thành công!</p>
+      <h1 class="title" style="color: #00ffcc;">THOÁT NẠN THÀNH CÔNG!</h1>
+      <p class="subtitle">Bạn đã tìm thấy chìa khóa và trốn thoát an toàn!</p>
       <button id="winRestartBtn" class="btn">CHƠI LẠI</button>
     </div>
   </div>
@@ -186,6 +217,7 @@
     const canvas = document.getElementById('gameCanvas');
     const ctx = canvas.getContext('2d');
 
+    const menuBgSvg = document.getElementById('menu-eyes-bg');
     const menuScreen = document.getElementById('menuScreen');
     const gameOverScreen = document.getElementById('gameOverScreen');
     const winScreen = document.getElementById('winScreen');
@@ -194,76 +226,24 @@
     const winRestartBtn = document.getElementById('winRestartBtn');
     const joystickZone = document.getElementById('joystick-zone');
     const joystickKnob = document.getElementById('joystick-knob');
-    const skillStatus = document.getElementById('skill-status');
+    const gameInfo = document.getElementById('game-info');
 
-    // Tái tạo các nét vẽ con mắt đỏ nguệch ngoạc theo vị trí ảnh của bạn
-    const sketchEyes = [
-      { x: 120, y: 280, scale: 1.1, rot: -0.1, speed: 0.03, phase: 0 },
-      { x: 380, y: 260, scale: 0.7, rot: 0.3,  speed: 0.05, phase: 1.5 },
-      { x: 650, y: 160, scale: 0.9, rot: -0.2, speed: 0.02, phase: 3 },
-      { x: 150, y: 480, scale: 0.8, rot: 0.2,  speed: 0.04, phase: 4.5 },
-      { x: 500, y: 450, scale: 1.0, rot: -0.1, speed: 0.035, phase: 2 }
+    // Các Bức Tường Đỏ ở Map 2 (dựa theo hình phác thảo)
+    const redWalls = [
+      { x: 50,  y: 80,  w: 220, h: 20 }, // Nét ngang top-left
+      { x: 80,  y: 180, w: 200, h: 20 }, // Nét ngang giữa-left 1
+      { x: 260, y: 180, w: 20,  h: 180 },// Nét dọc trái
+      { x: 80,  y: 340, w: 200, h: 20 }, // Nét ngang giữa-left 2
+      { x: 370, y: 140, w: 20,  h: 220 },// Nét dọc trung tâm
+      { x: 450, y: 120, w: 20,  h: 140 },// Nét dọc phải 1
+      { x: 450, y: 240, w: 250, h: 20 }, // Nét ngang phải 1
+      { x: 580, y: 30,  w: 20,  h: 230 },// Nét dọc dài phải
+      { x: 100, y: 460, w: 20,  h: 120 },// Nét dọc bottom-left
+      { x: 250, y: 460, w: 250, h: 20 }, // Nét ngang bottom-center
+      { x: 360, y: 480, w: 20,  h: 70 },  // Nét dọc xuống
+      { x: 500, y: 360, w: 20,  h: 120 },// Nét dọc bottom-right
+      { x: 520, y: 360, w: 280, h: 20 }  // Nét ngang bottom-right
     ];
-
-    function drawHandDrawnEye(x, y, scale, rotation, alpha) {
-      ctx.save();
-      ctx.translate(x, y);
-      ctx.rotate(rotation);
-      ctx.scale(scale, scale);
-
-      ctx.strokeStyle = `rgba(255, 30, 30, ${alpha})`;
-      ctx.fillStyle = `rgba(255, 20, 20, ${alpha})`;
-      ctx.lineWidth = 3;
-      ctx.lineCap = 'round';
-      ctx.shadowColor = '#ff0000';
-      ctx.shadowBlur = 12 * alpha;
-
-      // Nét vẽ mi trên
-      ctx.beginPath();
-      ctx.moveTo(-50, 5);
-      ctx.quadraticCurveTo(-10, -35, 50, -10);
-      ctx.stroke();
-
-      // Nét vẽ mi dưới
-      ctx.beginPath();
-      ctx.moveTo(-45, 0);
-      ctx.quadraticCurveTo(0, 30, 45, 5);
-      ctx.stroke();
-
-      // Nhãn cầu/Đồng tử dạng nét đứt nguệch ngoạc
-      ctx.beginPath();
-      ctx.arc(0, 0, 7, 0, Math.PI * 2);
-      ctx.fill();
-
-      // Các nét gạch trang trí xung quanh mắt
-      ctx.beginPath();
-      ctx.moveTo(-20, 15); ctx.lineTo(-15, 25);
-      ctx.moveTo(-10, 18); ctx.lineTo(-5, 28);
-      ctx.moveTo(10, 15);  ctx.lineTo(15, 25);
-      ctx.stroke();
-
-      ctx.restore();
-    }
-
-    function drawMenuBackground() {
-      // Nền đen phai sương mờ
-      ctx.fillStyle = '#080808';
-      ctx.fillRect(0, 0, canvas.width, canvas.height);
-
-      let grad = ctx.createRadialGradient(400, 300, 50, 400, 300, 500);
-      grad.addColorStop(0, '#150303');
-      grad.addColorStop(1, '#020202');
-      ctx.fillStyle = grad;
-      ctx.fillRect(0, 0, canvas.width, canvas.height);
-
-      // Vẽ từng con mắt nhấp nháy đỏ
-      sketchEyes.forEach(eye => {
-        eye.phase += eye.speed;
-        let alpha = (Math.sin(eye.phase) + 1) / 2; // Biến thiên 0 -> 1
-        alpha = Math.pow(alpha, 1.5); // Làm hiệu ứng chớp tắt mượt hơn
-        drawHandDrawnEye(eye.x, eye.y, eye.scale, eye.rot, alpha);
-      });
-    }
 
     const keys = {};
     let joystickVector = { x: 0, y: 0 };
@@ -309,33 +289,70 @@
       joystickVector = { x: dx / maxRadius, y: dy / maxRadius };
     }
 
-    let player, npc, keyItem, exitDoor, gameState;
-    let cooldownTimer = 0;
-    let skillActiveTimer = 0;
-    let isRedSkillActive = false;
+    let player, npc, keyItem, exitDoor, stairsMap1, stairsMap2, gameState, currentMap;
 
     function initGame() {
       gameState = 'PLAYING';
+      currentMap = 1;
 
-      player = { x: 100, y: 100, radius: 12, speed: 2.8, hasKey: false };
-      npc = { x: 700, y: 500, radius: 15, speed: 1.9 };
-      keyItem = { x: 700, y: 100, radius: 8, collected: false };
-      exitDoor = { x: 50, y: 500, width: 30, height: 50 };
+      player = { x: 150, y: 250, radius: 12, speed: 2.8, hasKey: false };
 
-      cooldownTimer = Math.floor(120 + Math.random() * 180); 
-      skillActiveTimer = 0;
-      isRedSkillActive = false;
+      // Cửa EXIT Map 1
+      exitDoor = { x: 60, y: 60, width: 80, height: 90 };
+      
+      // Cầu thang chuyển cảnh
+      stairsMap1 = { x: 680, y: 460, width: 90, height: 100 };
+      stairsMap2 = { x: 680, y: 480, width: 90, height: 100 };
 
+      // Chìa khóa vàng ở Map 2
+      keyItem = { x: 140, y: 130, radius: 10, collected: false };
+
+      // Quái vật ở Map 2
+      npc = {
+        x: 400, y: 100, radius: 15, speed: 1.8,
+        state: 'PATROL', // PATROL (Tuần tra) hoặc CHASE (Đuổi theo)
+        targetX: 400, targetY: 100,
+        patrolTimer: 0
+      };
+
+      menuBgSvg.style.display = 'none';
       menuScreen.classList.add('hidden');
       gameOverScreen.classList.add('hidden');
       winScreen.classList.add('hidden');
       joystickZone.style.display = 'block';
-      skillStatus.innerText = '';
+    }
+
+    // Kiểm tra va chạm với tường đỏ
+    function checkWallCollision(newX, newY, radius) {
+      if (currentMap !== 2) return false;
+      for (let wall of redWalls) {
+        let closestX = Math.max(wall.x, Math.min(newX, wall.x + wall.w));
+        let closestY = Math.max(wall.y, Math.min(newY, wall.y + wall.h));
+        let distanceX = newX - closestX;
+        let distanceY = newY - closestY;
+        let distanceSquared = (distanceX * distanceX) + (distanceY * distanceY);
+        if (distanceSquared < (radius * radius)) {
+          return true;
+        }
+      }
+      return false;
+    }
+
+    // Kiểm tra xem quái có nhìn thấy người chơi không (không bị tường cản)
+    function hasLineOfSight(x1, y1, x2, y2) {
+      const steps = 20;
+      for (let i = 0; i <= steps; i++) {
+        let px = x1 + (x2 - x1) * (i / steps);
+        let py = y1 + (y2 - y1) * (i / steps);
+        if (checkWallCollision(px, py, 2)) return false;
+      }
+      return true;
     }
 
     function update() {
       if (gameState !== 'PLAYING') return;
 
+      // 1. Di chuyển Player
       let moveX = joystickVector.x;
       let moveY = joystickVector.y;
 
@@ -349,56 +366,88 @@
         moveY *= 0.7071;
       }
 
-      player.x += moveX * player.speed;
-      player.y += moveY * player.speed;
-      player.x = Math.max(player.radius, Math.min(canvas.width - player.radius, player.x));
-      player.y = Math.max(player.radius, Math.min(canvas.height - player.radius, player.y));
+      let nextX = player.x + moveX * player.speed;
+      let nextY = player.y + moveY * player.speed;
 
-      const dx = player.x - npc.x;
-      const dy = player.y - npc.y;
-      const distance = Math.hypot(dx, dy);
-
-      if (distance > 0) {
-        npc.x += (dx / distance) * npc.speed;
-        npc.y += (dy / distance) * npc.speed;
+      if (!checkWallCollision(nextX, player.y, player.radius)) {
+        player.x = Math.max(player.radius, Math.min(canvas.width - player.radius, nextX));
+      }
+      if (!checkWallCollision(player.x, nextY, player.radius)) {
+        player.y = Math.max(player.radius, Math.min(canvas.height - player.radius, nextY));
       }
 
-      if (!isRedSkillActive) {
-        cooldownTimer--;
-        const secondsLeft = Math.ceil(cooldownTimer / 60);
-        skillStatus.innerText = `⏳ Đang ẩn náu trong bóng tối (${secondsLeft}s)...`;
-
-        if (cooldownTimer <= 0) {
-          isRedSkillActive = true;
-          skillActiveTimer = Math.floor(180 + Math.random() * 300); 
+      // 2. Chuyển Map
+      if (currentMap === 1) {
+        gameInfo.innerText = player.hasKey ? "🗝️ ĐÃ CÓ CHÌA KHÓA! Hãy đến cửa EXIT!" : "📍 MAP 1: Xuống cầu thang góc phải để sang Map 2";
+        
+        // Đi vào cầu thang sang Map 2
+        if (player.x > stairsMap1.x && player.y > stairsMap1.y) {
+          currentMap = 2;
+          player.x = 650;
+          player.y = 520;
         }
-      } else {
-        skillActiveTimer--;
-        const activeSecondsLeft = Math.ceil(skillActiveTimer / 60);
-        skillStatus.innerText = `🩸 KĨ NĂNG: BÓNG TỐI HÓA ĐỎ! (${activeSecondsLeft}s)`;
 
-        if (skillActiveTimer <= 0) {
-          isRedSkillActive = false;
-          cooldownTimer = Math.floor(240 + Math.random() * 360); 
+        // Thoát game ở Map 1
+        if (player.hasKey && player.x < exitDoor.x + exitDoor.width && player.y < exitDoor.y + exitDoor.height) {
+          endGame(winScreen);
         }
-      }
+      } 
+      else if (currentMap === 2) {
+        gameInfo.innerText = player.hasKey ? "🗝️ ĐÃ LẤY CHÌA KHÓA! Quay lại Map 1!" : "📍 MAP 2: Tìm chìa khóa vàng & Tránh quái vật!";
 
-      if (!player.hasKey) {
-        const distToKey = Math.hypot(player.x - keyItem.x, player.y - keyItem.y);
-        if (distToKey < player.radius + keyItem.radius) {
-          player.hasKey = true;
-          keyItem.collected = true;
+        // Đi lại cầu thang về Map 1
+        if (player.x > stairsMap2.x && player.y > stairsMap2.y) {
+          currentMap = 1;
+          player.x = 650;
+          player.y = 500;
         }
-      }
 
-      if (distance < player.radius + npc.radius) {
-        endGame(gameOverScreen);
-      }
+        // Nhặt chìa khóa
+        if (!keyItem.collected) {
+          let distKey = Math.hypot(player.x - keyItem.x, player.y - keyItem.y);
+          if (distKey < player.radius + keyItem.radius) {
+            keyItem.collected = true;
+            player.hasKey = true;
+          }
+        }
 
-      if (player.hasKey &&
-          player.x > exitDoor.x && player.x < exitDoor.x + exitDoor.width &&
-          player.y > exitDoor.y && player.y < exitDoor.y + exitDoor.height) {
-        endGame(winScreen);
+        // --- AI QUÁI VẬT (MAP 2) ---
+        let distToPlayer = Math.hypot(player.x - npc.x, player.y - npc.y);
+        let canSee = distToPlayer < 220 && hasLineOfSight(npc.x, npc.y, player.x, player.y);
+
+        if (canSee) {
+          npc.state = 'CHASE';
+        } else if (npc.state === 'CHASE') {
+          npc.state = 'PATROL'; // Mất dấu -> Chuyển sang đi tuần
+        }
+
+        if (npc.state === 'CHASE') {
+          // Đuổi theo người chơi
+          let angle = Math.atan2(player.y - npc.y, player.x - npc.x);
+          let nX = npc.x + Math.cos(angle) * npc.speed;
+          let nY = npc.y + Math.sin(angle) * npc.speed;
+          if (!checkWallCollision(nX, npc.y, npc.radius)) npc.x = nX;
+          if (!checkWallCollision(npc.x, nY, npc.radius)) npc.y = nY;
+        } else {
+          // Đi tuần tra ngẫu nhiên
+          npc.patrolTimer--;
+          if (npc.patrolTimer <= 0) {
+            npc.targetX = 100 + Math.random() * 600;
+            npc.targetY = 100 + Math.random() * 400;
+            npc.patrolTimer = 180 + Math.random() * 120;
+          }
+
+          let angle = Math.atan2(npc.targetY - npc.y, npc.targetX - npc.x);
+          let nX = npc.x + Math.cos(angle) * (npc.speed * 0.6);
+          let nY = npc.y + Math.sin(angle) * (npc.speed * 0.6);
+          if (!checkWallCollision(nX, npc.y, npc.radius)) npc.x = nX;
+          if (!checkWallCollision(npc.x, nY, npc.radius)) npc.y = nY;
+        }
+
+        // Bắt người chơi
+        if (distToPlayer < player.radius + npc.radius) {
+          endGame(gameOverScreen);
+        }
       }
     }
 
@@ -406,80 +455,121 @@
       gameState = 'ENDED';
       screen.classList.remove('hidden');
       joystickZone.style.display = 'none';
-      skillStatus.innerText = '';
+      gameInfo.innerText = '';
     }
 
+    // --- VẼ ĐỒ HỌA ---
     function draw() {
-      if (gameState === 'MENU') {
-        drawMenuBackground();
-        return;
-      }
+      if (gameState === 'MENU') return;
 
-      ctx.fillStyle = '#111';
+      // Nền chung
+      ctx.fillStyle = '#181818';
       ctx.fillRect(0, 0, canvas.width, canvas.height);
 
-      ctx.strokeStyle = '#222';
-      ctx.lineWidth = 1;
-      for (let x = 0; x < canvas.width; x += 40) {
-        ctx.beginPath(); ctx.moveTo(x, 0); ctx.lineTo(x, canvas.height); ctx.stroke();
-      }
-      for (let y = 0; y < canvas.height; y += 40) {
-        ctx.beginPath(); ctx.moveTo(0, y); ctx.lineTo(canvas.width, y); ctx.stroke();
-      }
+      if (currentMap === 1) {
+        // === VẼ MAP 1 ===
+        // Lưới ô vuông xám
+        ctx.strokeStyle = '#333';
+        ctx.lineWidth = 1;
+        for (let x = 0; x < canvas.width; x += 50) {
+          ctx.beginPath(); ctx.moveTo(x, 0); ctx.lineTo(x, canvas.height); ctx.stroke();
+        }
+        for (let y = 0; y < canvas.height; y += 50) {
+          ctx.beginPath(); ctx.moveTo(0, y); ctx.lineTo(canvas.width, y); ctx.stroke();
+        }
 
-      ctx.fillStyle = player.hasKey ? '#00ff88' : '#444';
-      ctx.fillRect(exitDoor.x, exitDoor.y, exitDoor.width, exitDoor.height);
+        // Cửa EXIT (Góc trên trái)
+        ctx.fillStyle = player.hasKey ? '#ffd700' : '#444';
+        ctx.shadowColor = player.hasKey ? '#ffd700' : 'transparent';
+        ctx.shadowBlur = 20;
+        ctx.fillRect(exitDoor.x, exitDoor.y, exitDoor.width, exitDoor.height);
+        ctx.shadowBlur = 0;
+        ctx.fillStyle = '#000';
+        ctx.font = 'bold 16px monospace';
+        ctx.fillText("EXIT", exitDoor.x + 20, exitDoor.y + 50);
 
-      if (!keyItem.collected) {
+        // Cầu Thang (Góc dưới phải)
+        ctx.fillStyle = '#222';
+        ctx.fillRect(stairsMap1.x, stairsMap1.y, stairsMap1.width, stairsMap1.height);
+        ctx.fillStyle = '#666';
+        for (let i = 0; i < 5; i++) {
+          ctx.fillRect(stairsMap1.x + 10, stairsMap1.y + i * 18, 70, 8);
+        }
+        ctx.fillStyle = '#fff';
+        ctx.font = '12px monospace';
+        ctx.fillText("XUỐNG MAP 2", stairsMap1.x - 5, stairsMap1.y - 10);
+
+      } else {
+        // === VẼ MAP 2 ===
+        // Vẽ Tường Đỏ
+        ctx.fillStyle = '#ff1133';
+        ctx.shadowColor = '#ff0000';
+        ctx.shadowBlur = 8;
+        redWalls.forEach(w => {
+          ctx.fillRect(w.x, w.w > w.h ? w.y : w.y, w.w, w.h);
+        });
+        ctx.shadowBlur = 0;
+
+        // Cầu Thang về Map 1
+        ctx.fillStyle = '#222';
+        ctx.fillRect(stairsMap2.x, stairsMap2.y, stairsMap2.width, stairsMap2.height);
+        ctx.fillStyle = '#666';
+        for (let i = 0; i < 5; i++) {
+          ctx.fillRect(stairsMap2.x + 10, stairsMap2.y + i * 18, 70, 8);
+        }
+        ctx.fillStyle = '#fff';
+        ctx.font = '12px monospace';
+        ctx.fillText("LÊN MAP 1", stairsMap2.x + 10, stairsMap2.y - 10);
+
+        // Chìa Khóa Vàng
+        if (!keyItem.collected) {
+          ctx.beginPath();
+          ctx.arc(keyItem.x, keyItem.y, keyItem.radius, 0, Math.PI * 2);
+          ctx.fillStyle = '#ffd700';
+          ctx.shadowColor = '#ffd700';
+          ctx.shadowBlur = 15;
+          ctx.fill();
+          ctx.shadowBlur = 0;
+        }
+
+        // Quái Vật (Chỉ có ở Map 2)
         ctx.beginPath();
-        ctx.arc(keyItem.x, keyItem.y, keyItem.radius, 0, Math.PI * 2);
-        ctx.fillStyle = '#ffd700';
-        ctx.shadowColor = '#ffd700';
-        ctx.shadowBlur = 10;
+        ctx.arc(npc.x, npc.y, npc.radius, 0, Math.PI * 2);
+        ctx.fillStyle = npc.state === 'CHASE' ? '#ff0000' : '#880000';
+        ctx.shadowColor = '#ff0000';
+        ctx.shadowBlur = npc.state === 'CHASE' ? 20 : 5;
         ctx.fill();
         ctx.shadowBlur = 0;
+
+        // Mắt quái vật
+        ctx.fillStyle = '#ffff00';
+        ctx.beginPath();
+        ctx.arc(npc.x - 4, npc.y - 3, 2, 0, Math.PI * 2);
+        ctx.arc(npc.x + 4, npc.y - 3, 2, 0, Math.PI * 2);
+        ctx.fill();
       }
 
+      // Vẽ Player (Ở cả 2 map)
       ctx.beginPath();
       ctx.arc(player.x, player.y, player.radius, 0, Math.PI * 2);
-      ctx.fillStyle = '#4da6ff';
+      ctx.fillStyle = '#00aaff';
       ctx.fill();
 
+      // Mắt player
       ctx.fillStyle = '#fff';
       ctx.beginPath();
       ctx.arc(player.x - 3, player.y - 3, 2, 0, Math.PI * 2);
       ctx.arc(player.x + 3, player.y - 3, 2, 0, Math.PI * 2);
       ctx.fill();
 
-      ctx.beginPath();
-      ctx.arc(npc.x, npc.y, npc.radius, 0, Math.PI * 2);
-      ctx.fillStyle = '#cc0000';
-      ctx.shadowColor = '#ff0000';
-      ctx.shadowBlur = 15;
-      ctx.fill();
-      ctx.shadowBlur = 0;
-
-      ctx.fillStyle = '#ffff00';
-      ctx.beginPath();
-      ctx.arc(npc.x - 4, npc.y - 3, 2, 0, Math.PI * 2);
-      ctx.arc(npc.x + 4, npc.y - 3, 2, 0, Math.PI * 2);
-      ctx.fill();
-
+      // Hiệu ứng bóng tối vòng tròn quanh Player
       const gradient = ctx.createRadialGradient(
-        player.x, player.y, 20,
-        player.x, player.y, 170
+        player.x, player.y, 30,
+        player.x, player.y, 180
       );
-
-      if (isRedSkillActive) {
-        gradient.addColorStop(0, 'rgba(255, 0, 0, 0)');          
-        gradient.addColorStop(0.5, 'rgba(180, 0, 0, 0.7)');       
-        gradient.addColorStop(1, 'rgba(100, 0, 0, 0.98)');       
-      } else {
-        gradient.addColorStop(0, 'rgba(0, 0, 0, 0)');            
-        gradient.addColorStop(0.7, 'rgba(0, 0, 0, 0.85)');      
-        gradient.addColorStop(1, 'rgba(0, 0, 0, 0.98)');        
-      }
-
+      gradient.addColorStop(0, 'rgba(0, 0, 0, 0)');
+      gradient.addColorStop(0.8, 'rgba(0, 0, 0, 0.85)');
+      gradient.addColorStop(1, 'rgba(0, 0, 0, 0.98)');
       ctx.fillStyle = gradient;
       ctx.fillRect(0, 0, canvas.width, canvas.height);
     }
